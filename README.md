@@ -1,9 +1,17 @@
 # Unwind
 
-Skills library for reverse engineering codebases. Produces complete, machine-readable documentation.
+Skills library for reverse engineering codebases. Produces complete, machine-readable documentation to then enable you to reliably re-build the service or application in a new technology or modernised framework.  
 
 ## Quick Start
 
+### Install
+
+```
+/plugin install https://github.com/cliftonc/unwind
+```
+Restart Claude Code after installation.
+
+### Use
 ```
 1. Use unwind:discovering-architecture
 2. Review docs/unwind/architecture.md
@@ -16,22 +24,6 @@ Skills library for reverse engineering codebases. Produces complete, machine-rea
 [Example Output →](#) *(coming soon)*
 
 ---
-
-## Installation
-
-### Claude Code
-
-```
-/plugin install https://github.com/cliftonc/unwind
-```
-
-Or clone locally:
-```bash
-git clone https://github.com/cliftonc/unwind.git ~/.claude/plugins/unwind
-/plugin install ~/.claude/plugins/unwind
-```
-
-Restart Claude Code after installation.
 
 ### Updating
 
