@@ -88,32 +88,53 @@ After application layers complete, dispatch testing specialists in parallel:
 
 Testing analysis can reference application layer docs for coverage mapping.
 
-### Step 5: Verification Phase
+### Step 5: Gap Detection Phase
 
-After all layer analysis completes, dispatch verification agents IN PARALLEL:
+After all layer analysis completes, dispatch verification agents IN PARALLEL to find gaps:
 
 ```
 For each analyzed layer:
   Task(subagent_type="general-purpose")
-    description: "Verify [layer] documentation"
+    description: "Find gaps in [layer] documentation"
     prompt: |
-      Use unwind:verifying-layer-documentation to verify the [layer] layer.
+      Use unwind:verifying-layer-documentation to find gaps in the [layer] layer.
 
-      Read docs/unwind/layers/[layer]/index.md and all linked section files.
-      Compare against source files.
+      Compare docs/unwind/layers/[layer]/ against source files.
 
-      Produce:
-      1. Verification report at docs/unwind/layers/[layer]/verification.md
-      2. Fixes applied to section files as needed
-      3. Rebuild readiness score (1-10)
+      Output ONLY gaps to docs/unwind/layers/[layer]/gaps.md
+
+      DO NOT write about what's correct or assign scores.
 ```
 
-**Verification agents run in parallel** - no dependencies between layer verifications.
+**Gap detection runs in parallel** - no dependencies between layers.
 
-### Step 6: Handoff
+### Step 6: Gap Completion Phase
 
-When verification complete:
-> Layer analysis and verification complete. Run `unwind:synthesizing-findings` to aggregate into CODEBASE.md.
+After gap detection, dispatch completion agents IN PARALLEL:
+
+```
+For each layer with gaps.md:
+  Task(subagent_type="general-purpose")
+    description: "Complete [layer] documentation gaps"
+    prompt: |
+      Use unwind:completing-layer-documentation to fix gaps in [layer].
+
+      Read docs/unwind/layers/[layer]/gaps.md for the work list.
+
+      For each missing item:
+      1. Read source at specified location
+      2. Add documentation to specified section file
+      3. Include [MUST/SHOULD/DON'T] tag
+
+      Delete gaps.md when complete.
+```
+
+**Completion runs in parallel** - no dependencies between layers.
+
+### Step 7: Handoff
+
+When completion phase done (all gaps.md files deleted):
+> Layer analysis complete. Run `unwind:synthesizing-findings` to aggregate into CODEBASE.md.
 
 ## Execution Example
 
@@ -134,8 +155,9 @@ Execution:
 4. Phase 4: `analyzing-api-layer` (messaging skipped)
 5. Phase 5: `analyzing-frontend-layer`
 6. Phase 6: `analyzing-unit-tests`, `analyzing-integration-tests`, `analyzing-e2e-tests` (parallel)
-7. **Phase 7: Verification** - `verifying-layer-documentation` for all layers (parallel)
-8. Handoff to synthesis
+7. **Phase 7: Gap Detection** - `verifying-layer-documentation` for all layers (parallel) → gaps.md
+8. **Phase 8: Gap Completion** - `completing-layer-documentation` for all layers (parallel)
+9. Handoff to synthesis
 
 ## Refresh Mode
 

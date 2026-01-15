@@ -1,300 +1,180 @@
 ---
 name: verifying-layer-documentation
-description: Use after layer analysis is complete to verify and augment documentation against source code. Run as parallel agents per layer.
+description: Use after layer analysis to detect gaps in documentation. Outputs a work list for completing-layer-documentation.
 allowed-tools:
   - Read
   - Grep
   - Glob
   - Bash(mkdir:*, ls:*)
   - Write(docs/unwind/**)
-  - Edit(docs/unwind/**)
-  - Task
 ---
 
 # Verifying Layer Documentation
 
-**Purpose:** Second-pass verification that compares generated documentation against actual source code to identify gaps, inaccuracies, and missing categorization.
+**Purpose:** Detect gaps between documentation and source code. Output is a work list for the next skill to fix.
 
-**When to Run:** After all layer analysis skills have completed and before `synthesizing-findings`.
+**Output:** `docs/unwind/layers/{layer}/gaps.md` - list of missing items only
 
-**Execution:** Launch parallel agents, one per layer that was analyzed.
+**Does NOT:**
+- Write about what's correct
+- Assign scores
+- Apply fixes (that's the next skill's job)
 
-## Process Overview
+## Process
+
+For each layer, compare documentation against source and output ONLY the gaps.
+
+### Step 1: Read Documentation
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    VERIFICATION PHASE                            │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│   │   Database   │  │   Service    │  │     API      │          │
-│   │   Verifier   │  │   Verifier   │  │   Verifier   │          │
-│   └──────┬───────┘  └──────┬───────┘  └──────┬───────┘          │
-│          │                 │                 │                   │
-│   ┌──────┴───────┐  ┌──────┴───────┐  ┌──────┴───────┐          │
-│   │    Domain    │  │   Frontend   │  │   Messaging  │          │
-│   │   Verifier   │  │   Verifier   │  │   Verifier   │          │
-│   └──────────────┘  └──────────────┘  └──────────────┘          │
-│                                                                  │
-│   Each verifier:                                                 │
-│   1. Reads layer documentation                                   │
-│   2. Reads source files                                          │
-│   3. Compares item-by-item                                       │
-│   4. Produces verification report                                │
-│   5. Augments documentation with fixes                           │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+Read docs/unwind/layers/{layer}/index.md
+Follow links to all section files
+Build list of documented items
+```
+
+### Step 2: Read Source
+
+```
+Read source files for the layer (from architecture.md entry_points)
+Build list of actual items in code
+```
+
+### Step 3: Find Gaps
+
+Compare the two lists:
+- Items in source but NOT in documentation → **MISSING**
+- Items documented incorrectly → **INACCURATE**
+- Items missing [MUST/SHOULD/DON'T] tags → **UNCATEGORIZED**
+
+### Step 4: Write gaps.md
+
+Write ONLY the gaps to `docs/unwind/layers/{layer}/gaps.md`
+
+## Output Format
+
+```markdown
+# {Layer} Documentation Gaps
+
+## Missing Items
+
+### {item_name}
+- **Type:** table|service|endpoint|entity|etc
+- **Location:** {source_file}:{line_start}-{line_end}
+- **Category:** MUST|SHOULD|DON'T
+- **Section:** {which section file it belongs in}
+
+### {next_item}
+...
+
+## Inaccuracies
+
+### {item_name}
+- **Location:** {source_file}:{lines}
+- **Issue:** {what's wrong}
+- **Actual:** {what code shows}
+
+## Uncategorized Items
+
+- {item_name} in {section}.md - needs [MUST|SHOULD|DON'T] tag
+- ...
+```
+
+## Example gaps.md
+
+```markdown
+# Database Documentation Gaps
+
+## Missing Items
+
+### audit_logs table
+- **Type:** table
+- **Location:** src/schema.ts:412-445
+- **Category:** SHOULD
+- **Section:** schema.md
+
+### user_sessions table
+- **Type:** table
+- **Location:** src/schema.ts:450-478
+- **Category:** MUST
+- **Section:** schema.md
+
+### settings JSONB schema
+- **Type:** jsonb_schema
+- **Location:** src/schema.ts:89 (organisation.settings)
+- **Category:** MUST
+- **Section:** jsonb-schemas.md
+
+## Inaccuracies
+
+### users.status column
+- **Location:** src/schema.ts:45
+- **Issue:** Wrong type documented
+- **Actual:** enum('active', 'suspended', 'deleted') not varchar
+
+## Uncategorized Items
+
+- users table in schema.md - needs [MUST] tag
+- findByEmail in repositories.md - needs [SHOULD] tag
 ```
 
 ## Agent Dispatch
 
-For each layer that has documentation, spawn a verification agent:
-
-```markdown
-## Verification Agent Prompt Template
-
-You are verifying the {LAYER} layer documentation for completeness and accuracy.
-
-**Documentation:** `docs/unwind/layers/{layer}/index.md` (and all linked section files)
-**Source Files:** {SOURCE_PATHS}
-
-### Your Tasks
-
-1. **READ ALL SECTION FILES**
-   - Read `docs/unwind/layers/{layer}/index.md`
-   - Follow links to read all section files
-   - Build complete picture of documented items
-
-2. **COUNT VERIFICATION**
-   - Count actual items in source (tables, routes, hooks, etc.)
-   - Compare to documented count
-   - Report: "Documented: X, Actual: Y, Gap: Z"
-
-3. **ITEM-BY-ITEM COMPARISON**
-   For each documented item:
-   - Does it exist in source? (VERIFIED / NOT FOUND)
-   - Is the documentation accurate? (ACCURATE / INACCURATE)
-   - What details are missing?
-
-4. **MISSING ITEM DETECTION**
-   For each item in source:
-   - Is it documented? (DOCUMENTED / MISSING)
-   - If missing, what category? (MUST / SHOULD / DON'T)
-
-5. **CATEGORIZATION CHECK**
-   - Does each item have [MUST], [SHOULD], or [DON'T] tag?
-   - Are the tags appropriate?
-
-6. **PRODUCE VERIFICATION REPORT**
-   Create `docs/unwind/layers/{layer}/verification.md` with:
-   - Accuracy issues found
-   - Missing items to add
-   - Suggested fixes
-   - Updated documentation sections
-
-### Output Format
-
-```markdown
-# {Layer} Verification Report
-
-## Summary
-
-| Metric | Count |
-|--------|-------|
-| Documented Items | X |
-| Actual Items | Y |
-| Accuracy Issues | Z |
-| Missing Items | W |
-| Rebuild Readiness | N/10 |
-
-## Accuracy Issues
-
-### Issue 1: {description}
-**Documented:** {what docs say}
-**Actual:** {what code shows}
-**Fix:** {corrected documentation}
-
-## Missing Items
-
-### {Item Name} [MUST/SHOULD/DON'T]
-{Documentation that should be added}
-
-## Augmented Sections
-
-{Complete replacement sections for the documentation}
-```
-```
-
-## Layer-Specific Verification
-
-### Database Layer Verification
-
-**Focus Areas:**
-- Table count matches schema file
-- Every column documented for every table
-- JSONB schemas extracted and documented
-- FK relationships include ON DELETE behavior
-- All indexes listed
-
-**Checklist:**
-```markdown
-[ ] Table count: Documented vs Actual
-[ ] Each table has field-level documentation
-[ ] JSONB columns have structure documented
-[ ] Indexes are listed with columns
-[ ] ER diagram matches relationships
-```
-
-### Service Layer Verification
-
-**Focus Areas:**
-- All formulas have source:line references
-- Edge cases documented (especially conditionals)
-- Hardcoded constants extracted
-- Fallback chains documented
-
-**Checklist:**
-```markdown
-[ ] Core formulas verified against source
-[ ] Edge cases for each formula documented
-[ ] Constants table complete
-[ ] Rate resolution chain accurate
-```
-
-### API Layer Verification
-
-**Focus Areas:**
-- Route file count matches directory
-- All endpoints listed per route
-- Permission requirements documented
-- External API contracts captured
-
-**Checklist:**
-```markdown
-[ ] Route count: Documented vs Actual
-[ ] Each route has endpoint summary
-[ ] Missing routes explicitly noted
-[ ] Permission matrix complete
-```
-
-### Domain Model Verification
-
-**Focus Areas:**
-- Validation schemas have constraint tables
-- All enum values documented
-- Permission matrix complete
-- Self-reference rules captured
-
-**Checklist:**
-```markdown
-[ ] Validation schema count matches
-[ ] Each schema has min/max/required table
-[ ] All enums have value tables
-[ ] Permission matrix is complete
-```
-
-### Frontend Layer Verification
-
-**Focus Areas:**
-- Page count matches directory
-- User flows documented (not React code)
-- Permission gates documented
-- API dependencies listed
-
-**Checklist:**
-```markdown
-[ ] Page count: Documented vs Actual
-[ ] Each page has purpose and user flow
-[ ] Tech-specific code removed
-[ ] API interactions documented
-```
-
-## Output Files
-
-Each verifier produces:
-
-1. **`docs/unwind/layers/{layer}/verification.md`** - Verification report (inside the layer folder)
-2. **Updates to section files** - Fixes applied to specific section .md files as needed
-
-## Integration with Synthesis
-
-After all verifiers complete, the `synthesizing-findings` skill should:
-1. Read all `*-verification.md` reports
-2. Aggregate findings
-3. Update overall rebuild readiness score
-4. Include verification summary in final `CODEBASE.md`
-
-## Example Agent Prompts
-
-### Database Verifier
+For each layer, dispatch verification in parallel:
 
 ```
-Verify the database layer documentation.
+Task(subagent_type="general-purpose")
+  description: "Find gaps in [layer] documentation"
+  prompt: |
+    Compare docs/unwind/layers/{layer}/ against source code.
 
-1. Read docs/unwind/layers/database/index.md
-2. Read all linked section files (schema.md, repositories.md, etc.)
-3. Read src/schema.ts (or equivalent schema file)
-4. Count all tables in schema
-5. For each table:
-   - Is it documented in schema.md?
-   - Are all columns documented?
-   - Are types accurate?
-6. For each JSONB column:
-   - Is the structure documented in jsonb-schemas.md?
-7. Produce verification report at docs/unwind/layers/database/verification.md
+    Entry points: [from architecture.md]
+    Link format: [from architecture.md]
+
+    Output ONLY gaps to docs/unwind/layers/{layer}/gaps.md
+
+    DO NOT:
+    - Write about what's correct
+    - Assign scores
+    - Fix anything
+
+    ONLY list:
+    - Missing items (with source location, category, target section)
+    - Inaccuracies (with what's wrong and actual value)
+    - Uncategorized items (missing MUST/SHOULD/DON'T tags)
 ```
 
-### Service Verifier
+## Layer-Specific Gap Detection
 
-```
-Verify the service layer documentation.
+### Database Layer
+- Missing tables
+- Missing columns
+- Missing JSONB schemas
+- Missing indexes
+- Missing FK relationships
 
-1. Read docs/unwind/layers/service-layer/index.md
-2. Read all linked section files (services.md, formulas.md, etc.)
-3. Read all files in src/server-libs/ (or equivalent)
-4. For each documented formula in formulas.md:
-   - Find the source code
-   - Verify the formula matches exactly
-   - Check for edge cases
-5. For each calculation function:
-   - Are all branches documented?
-   - Are hardcoded constants listed?
-6. Produce verification report at docs/unwind/layers/service-layer/verification.md
-```
+### Service Layer
+- Missing services
+- Missing formulas
+- Missing edge cases
+- Missing constants
 
-### API Verifier
+### API Layer
+- Missing endpoints
+- Missing route files
+- Missing permission documentation
+- Missing error responses
 
-```
-Verify the API layer documentation.
+### Domain Model
+- Missing entities
+- Missing enums
+- Missing validation rules
+- Missing state transitions
 
-1. Read docs/unwind/layers/api/index.md
-2. Read all linked section files (endpoints.md, auth.md, etc.)
-3. List all files in src/routes/ (or equivalent)
-4. For each route file:
-   - Is it mentioned in endpoints.md?
-   - Are all endpoints listed?
-5. For missing routes, document them
-6. Produce verification report at docs/unwind/layers/api/verification.md
-```
+### Frontend Layer
+- Missing pages
+- Missing user flows
+- Missing permission gates
 
-## Rebuild Readiness Scoring
+## Next Step
 
-Each verifier assigns a score:
-
-| Score | Meaning |
-|-------|---------|
-| 9-10 | Ready for AI rebuild - comprehensive, accurate |
-| 7-8 | Mostly ready - minor gaps, no blocking issues |
-| 5-6 | Significant gaps - rebuild possible with assumptions |
-| 3-4 | Major gaps - rebuild would miss key functionality |
-| 1-2 | Not ready - documentation insufficient |
-
-**Scoring Criteria:**
-
-| Factor | Weight |
-|--------|--------|
-| Item count accuracy | 20% |
-| Field/detail accuracy | 30% |
-| MUST items documented | 30% |
-| JSONB/complex schemas | 10% |
-| Categorization complete | 10% |
+After gaps.md files are created, run `completing-layer-documentation` to fix all gaps.

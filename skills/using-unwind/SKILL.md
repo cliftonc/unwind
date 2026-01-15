@@ -24,28 +24,31 @@ See `analysis-principles.md`:
 ## Workflow
 
 ```
-discovering-architecture     → architecture.md
+discovering-architecture     → architecture.md (+ repo info for linking)
         │
 unwinding-codebase          → dispatches layer specialists
         │
-        ├── analyzing-database-layer     → database.md
-        ├── analyzing-domain-model       → domain-model.md
-        ├── analyzing-service-layer      → service-layer.md
-        ├── analyzing-api-layer          → api.md
-        ├── analyzing-messaging-layer    → messaging.md (if present)
-        ├── analyzing-frontend-layer     → frontend.md (if present)
-        ├── analyzing-unit-tests         → unit-tests.md
-        ├── analyzing-integration-tests  → integration-tests.md
-        └── analyzing-e2e-tests          → e2e-tests.md
+        ├── analyzing-database-layer     → database/
+        ├── analyzing-domain-model       → domain-model/
+        ├── analyzing-service-layer      → service-layer/
+        ├── analyzing-api-layer          → api/
+        ├── analyzing-messaging-layer    → messaging/ (if present)
+        ├── analyzing-frontend-layer     → frontend/ (if present)
+        ├── analyzing-unit-tests         → unit-tests/
+        ├── analyzing-integration-tests  → integration-tests/
+        └── analyzing-e2e-tests          → e2e-tests/
         │
-verifying-layer-documentation → verification pass (parallel per layer)
+verifying-layer-documentation → gap detection (parallel per layer)
         │
-        ├── Compares each layer doc against source
-        ├── Identifies accuracy issues and gaps
-        ├── Applies fixes and augmentations
-        └── Assigns rebuild readiness scores
+        └── Outputs gaps.md per layer (missing items only)
         │
-synthesizing-findings       → CODEBASE.md
+completing-layer-documentation → gap completion (parallel per layer)
+        │
+        ├── Reads gaps.md work list
+        ├── Adds missing documentation
+        └── Deletes gaps.md when done
+        │
+synthesizing-findings       → CODEBASE.md + REBUILD-PLAN.md
 ```
 
 ## Skills
@@ -56,8 +59,9 @@ synthesizing-findings       → CODEBASE.md
 |-------|--------|
 | `discovering-architecture` | `architecture.md` |
 | `unwinding-codebase` | Orchestrates layer analysis |
-| `verifying-layer-documentation` | Verification reports, fixes applied |
-| `synthesizing-findings` | `CODEBASE.md` |
+| `verifying-layer-documentation` | `gaps.md` per layer (work list) |
+| `completing-layer-documentation` | Fills gaps, deletes gaps.md |
+| `synthesizing-findings` | `CODEBASE.md` + `REBUILD-PLAN.md` |
 
 ### Layer Specialists
 

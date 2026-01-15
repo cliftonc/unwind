@@ -32,16 +32,16 @@ Before using this skill:
 
 ## The Process
 
-### Step 1: Inventory and Score
+### Step 1: Inventory
 
 Read all docs from `docs/unwind/layers/`:
 - For each layer folder, read `index.md` and follow links to section files
-- Read verification reports (`verification.md` inside each layer folder)
+- Verify no `gaps.md` files remain (completion phase should have deleted them)
 
 Extract:
-- Rebuild readiness scores per layer
 - MUST/SHOULD/DON'T categorizations
 - External contracts (OpenAPI, AsyncAPI, etc.)
+- Item counts per layer
 
 ### Step 2: Identify External Contracts [CRITICAL]
 
@@ -451,19 +451,11 @@ npx playwright test
 
 ## Appendix: Layer Documentation
 
-- [Database Layer](layers/database/index.md) - Readiness: X/10
-- [Domain Model](layers/domain-model/index.md) - Readiness: X/10
-- [Service Layer](layers/service-layer/index.md) - Readiness: X/10
-- [API Layer](layers/api/index.md) - Readiness: X/10
-- [Frontend Layer](layers/frontend/index.md) - Readiness: X/10
-
-## Appendix: Verification Reports
-
-- [Database Verification](layers/database/verification.md)
-- [Service Verification](layers/service-layer/verification.md)
-- [API Verification](layers/api/verification.md)
-- [Domain Verification](layers/domain-model/verification.md)
-- [Frontend Verification](layers/frontend/verification.md)
+- [Database Layer](layers/database/index.md)
+- [Domain Model](layers/domain-model/index.md)
+- [Service Layer](layers/service-layer/index.md)
+- [API Layer](layers/api/index.md)
+- [Frontend Layer](layers/frontend/index.md)
 ```
 
 ---
