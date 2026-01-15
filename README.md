@@ -6,14 +6,25 @@ A skills library for reverse engineering existing services and codebases. Provid
 
 ### Claude Code
 
-Install from the plugin marketplace:
+Install from GitHub:
 ```
-/plugin install unwind
+/plugin install https://github.com/cliftonc/unwind
 ```
 
-Or for local development:
+Or clone and install locally:
+```bash
+git clone https://github.com/cliftonc/unwind.git ~/.claude/plugins/unwind
+/plugin install ~/.claude/plugins/unwind
 ```
-/plugin install /path/to/unwind
+
+After installation, restart Claude Code to load the plugin.
+
+### Updating
+
+To update to the latest version:
+```
+/plugin uninstall unwind
+/plugin install https://github.com/cliftonc/unwind
 ```
 
 ### Codex
