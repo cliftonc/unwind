@@ -5,257 +5,93 @@ description: Use when analyzing the database layer including schema, migrations,
 
 # Analyzing Database Layer
 
-## Overview
+**Output:** `docs/unwind/layers/database.md` (or `database/` directory if large)
 
-Deep analysis of database schema, migrations, ORM configuration, and data access patterns. Produces comprehensive documentation of the data layer.
+**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary.
 
-**Output:** `docs/unwind/layers/database.md`
+## Process
 
-## Focus Areas
+1. **Find all database artifacts:**
+   - Migration files (Flyway, Liquibase, Alembic, Prisma)
+   - Entity/model classes
+   - Repository/DAO classes
+   - Database configuration
 
-### 1. Schema Analysis
+2. **Extract schema:**
+   - Include actual DDL or migration SQL
+   - Document ALL tables, columns, indexes, constraints
+   - Use mermaid ERD for relationships
 
-**Tables and Relationships:**
-- Table names and purposes
-- Primary keys (natural vs surrogate)
-- Foreign key relationships
-- Indexes (performance, unique constraints)
-- Naming conventions
+3. **Document repositories:**
+   - List ALL repository classes with GitHub links
+   - Include method signatures
+   - Note custom queries (actual SQL/JPQL)
 
-**Column Analysis:**
-- Data types and constraints
-- Nullable vs required fields
-- Default values
-- Computed columns
-
-### 2. Migration History
-
-**Migration Files:**
-- Flyway (`db/migration/V*.sql`)
-- Liquibase (`changelog/*.xml`)
-- Alembic (`alembic/versions/*.py`)
-- Prisma (`prisma/migrations/`)
-- Rails (`db/migrate/*.rb`)
-
-**Analysis:**
-- Schema evolution over time
-- Breaking changes
-- Data migrations vs schema migrations
-- Rollback capability
-
-### 3. ORM Configuration
-
-**Entity Mapping:**
-- Entity classes and their table mappings
-- Relationship mappings (OneToMany, ManyToOne, etc.)
-- Lazy vs eager loading configuration
-- Cascade settings
-
-**Query Patterns:**
-- Repository/DAO implementations
-- Custom queries (JPQL, HQL, raw SQL)
-- Query methods (Spring Data style)
-- N+1 query risks
-
-### 4. Connection and Pooling
-
-- Connection pool configuration
-- Multiple datasource setup
-- Read replicas
-- Transaction isolation levels
-
-### 5. Database-Specific Features
-
-- Stored procedures
-- Triggers
-- Views
-- Database-specific types (JSON, arrays, etc.)
-
-## The Process
-
-### Step 1: Locate Database Artifacts
-
-Search for:
-```
-# Migration files
-**/migration*/**/*.sql
-**/changelog/**/*.xml
-**/alembic/versions/*.py
-
-# ORM configuration
-**/entity/**/*.java
-**/model/**/*.py
-**/entities/**/*.ts
-
-# Repository layer
-**/repository/**/*
-**/dao/**/*
-
-# Configuration
-application.yml, application.properties
-database.yml, config/database.yml
-.env, config.py
-```
-
-### Step 2: Analyze Schema
-
-1. Read migration files chronologically
-2. Build current schema state
-3. Document tables with columns and types
-4. Map relationships (FK constraints)
-5. Note indexes and constraints
-
-### Step 3: Analyze Data Access
-
-1. Find repository/DAO classes
-2. Document CRUD operations
-3. Identify custom queries
-4. Note transaction boundaries
-5. Flag N+1 query risks
-
-### Step 4: Document Patterns
-
-Identify and document:
-- Repository pattern usage
-- Query builder patterns
-- Soft delete patterns
-- Audit trail patterns
-- Multi-tenancy patterns
+4. **If large:** Split by domain into `layers/database/{domain}.md`
 
 ## Output Format
 
 ```markdown
-# Database Layer Analysis
+# Database Layer
 
-> **Analyzed by:** unwind:analyzing-database-layer
-> **Generated:** [ISO timestamp]
-> **Confidence:** High | Medium | Low
-
-## Summary
-
-[2-3 sentences: database type, ORM, key characteristics]
-
-## Technology Stack
-
-| Component | Technology |
-|-----------|------------|
-| Database | PostgreSQL 14 |
-| ORM | Hibernate 6.x |
-| Migrations | Flyway |
-| Connection Pool | HikariCP |
-
-## Schema Overview
+## Schema
 
 ### Tables
 
-| Table | Purpose | Rows (est.) | Key Relationships |
-|-------|---------|-------------|-------------------|
-| users | User accounts | ~10k | Has many orders |
-| orders | Purchase orders | ~100k | Belongs to user |
+[List ALL tables]
 
-### Entity-Relationship Diagram
+#### users
+
+```sql
+-- From: migrations/V1__create_users.sql
+CREATE TABLE users (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_users_email ON users(email);
+```
+
+### Entity Relationships
 
 ```mermaid
 erDiagram
-    USER ||--o{ ORDER : places
-    ORDER ||--|{ ORDER_ITEM : contains
-    ORDER_ITEM }|--|| PRODUCT : references
+    users ||--o{ orders : places
+    orders ||--|{ order_items : contains
+    order_items }|--|| products : references
 ```
 
-## Table Details
+## Repositories
 
-### users
+### UserRepository
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| id | BIGINT | NO | Primary key |
-| email | VARCHAR(255) | NO | Unique email |
-| created_at | TIMESTAMP | NO | Creation time |
+[UserRepository.java](https://github.com/owner/repo/blob/main/src/repository/UserRepository.java)
 
-**Indexes:**
-- `idx_users_email` (UNIQUE) on `email`
-
-**Relationships:**
-- One-to-Many with `orders`
-
-[Repeat for key tables...]
-
-## Migration Analysis
-
-### Timeline
-
-| Version | Date | Description | Impact |
-|---------|------|-------------|--------|
-| V1 | 2023-01-15 | Initial schema | - |
-| V2 | 2023-03-20 | Add orders table | New table |
-| V3 | 2024-01-10 | Add soft delete | Column add |
-
-### Notable Migrations
-
-**V3: Soft Delete Implementation**
-- Added `deleted_at` to users, orders
-- Impact: All queries need to filter deleted
-
-## Data Access Patterns
-
-### Repositories
-
-| Repository | Entity | Custom Queries |
-|------------|--------|----------------|
-| UserRepository | User | findByEmail, findActiveUsers |
-| OrderRepository | Order | findByUserAndStatus |
-
-### Query Analysis
-
-**Custom Queries:**
 ```java
-// UserRepository.java:45
-@Query("SELECT u FROM User u WHERE u.status = 'ACTIVE'")
-List<User> findActiveUsers();
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
+
+    @Query("SELECT u FROM User u WHERE u.status = :status")
+    List<User> findByStatus(@Param("status") UserStatus status);
+}
 ```
 
-**N+1 Risks:**
-- `OrderRepository.findAll()` - orders loaded without items
-- Recommendation: Add `@EntityGraph` or fetch join
+[Continue for ALL repositories...]
 
-## Cross-Cutting Touchpoints
+## Migrations
 
-@cross-cutting:audit
-- `created_at`, `updated_at` on all tables
-- `created_by`, `updated_by` on some tables
+| Version | File | Description |
+|---------|------|-------------|
+| V1 | V1__initial.sql | Initial schema |
+| V2 | V2__add_orders.sql | Add orders table |
 
-@cross-cutting:soft-delete
-- `deleted_at` column pattern
-- Global filter in ORM config
+## Unknowns
 
-## Performance Considerations
-
-### Indexes
-- [List important indexes and their purpose]
-
-### Missing Indexes
-- [Potential index recommendations]
-
-### Query Optimization
-- [Slow query patterns identified]
-
-## Unknowns and Questions
-
-- [ ] Purpose of `legacy_data` table unclear
-- [ ] Orphaned table `temp_migration` - safe to remove?
-
-## Recommendations
-
-1. **Add index on orders.user_id** - FK without index
-2. **Review N+1 in OrderService.getAll()** - Consider fetch join
-3. **Document legacy tables** - Several undocumented tables
+- [List anything unclear]
 ```
 
 ## Refresh Mode
 
-If `docs/unwind/layers/database.md` exists:
-
-1. Load previous analysis
-2. Detect schema changes (new tables, columns, migrations)
-3. Add `## Changes Since Last Review` section
-4. Highlight new findings vs confirmed findings
+If `database.md` exists, compare and add `## Changes Since Last Review` section.

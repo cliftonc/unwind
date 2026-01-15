@@ -5,246 +5,105 @@ description: Use when analyzing domain entities, value objects, aggregates, and 
 
 # Analyzing Domain Model
 
-## Overview
+**Output:** `docs/unwind/layers/domain-model.md` (or `domain-model/` directory if large)
 
-Analysis of domain entities, value objects, aggregates, and business rules. Documents the core business concepts and their relationships.
+**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary.
 
-**Output:** `docs/unwind/layers/domain-model.md`
-**Depends on:** Database layer analysis (for entity-table mapping context)
+## Process
 
-## Focus Areas
+1. **Find all domain artifacts:**
+   - Entity classes
+   - Value objects
+   - Enums
+   - Domain events
 
-### 1. Entity Identification
+2. **Document ALL entities:**
+   - Include actual class definitions
+   - Show field types and annotations
+   - Link to source files
 
-**Core Entities:**
-- Primary business objects
-- Identity and lifecycle
-- Mutable state
+3. **Extract business rules:**
+   - Validation logic (actual code)
+   - State transitions (actual code)
+   - Invariants (actual code)
 
-**Entity Characteristics:**
-- Unique identifier strategy
-- Required vs optional fields
-- State transitions
-- Business invariants
-
-### 2. Value Objects
-
-**Immutable Values:**
-- Objects defined by attributes, not identity
-- Examples: Money, Address, DateRange, Email
-
-**Patterns:**
-- Embedded values vs separate tables
-- Validation in constructor
-- Equality by value
-
-### 3. Aggregates (if DDD)
-
-**Aggregate Roots:**
-- Consistency boundaries
-- Transaction boundaries
-- Invariant enforcement
-
-**Aggregate Design:**
-- What entities belong together?
-- How are boundaries enforced?
-- Cross-aggregate references
-
-### 4. Business Rules
-
-**Invariants:**
-- Rules that must always be true
-- Validation logic
-- State constraints
-
-**Domain Logic:**
-- Calculations
-- Business decisions
-- State transitions
-
-### 5. Domain Events
-
-**Event Definitions:**
-- What happened in the domain
-- Event payload structure
-- Event naming conventions
-
-## The Process
-
-### Step 1: Locate Domain Artifacts
-
-Search for:
-```
-# Entity/Model directories
-**/domain/**/*
-**/model/**/*
-**/entity/**/*
-**/entities/**/*
-
-# Value objects
-**/vo/**/*
-**/valueobject/**/*
-
-# Events
-**/event/**/*
-**/events/**/*
-```
-
-### Step 2: Catalog Entities
-
-For each entity:
-1. Identify the class/type
-2. Map to database table (from database analysis)
-3. Document fields and types
-4. Note relationships
-5. Find business logic methods
-
-### Step 3: Identify Value Objects
-
-Look for:
-- Immutable classes
-- Classes without ID
-- `@Embeddable` (JPA)
-- Frozen dataclasses (Python)
-- `readonly` types (TypeScript)
-
-### Step 4: Map Aggregates
-
-If DDD patterns present:
-1. Identify aggregate roots
-2. Map aggregate boundaries
-3. Document invariants
-4. Note consistency rules
-
-### Step 5: Extract Business Rules
-
-Find business logic in:
-- Entity methods
-- Validation annotations/decorators
-- Constructor constraints
-- State machine logic
+4. **If large:** Split by aggregate/domain into `layers/domain-model/{aggregate}.md`
 
 ## Output Format
 
 ```markdown
-# Domain Model Analysis
+# Domain Model
 
-> **Analyzed by:** unwind:analyzing-domain-model
-> **Generated:** [ISO timestamp]
-> **Confidence:** High | Medium | Low
-
-## Summary
-
-[2-3 sentences: domain style, key concepts, patterns used]
-
-## Domain Style
-
-- [ ] Anemic Domain Model (logic in services)
-- [x] Rich Domain Model (logic in entities)
-- [ ] DDD with Aggregates
-- [ ] Event Sourced
-
-## Core Entities
-
-### Entity Overview
-
-| Entity | Table | Purpose | Key Relationships |
-|--------|-------|---------|-------------------|
-| User | users | System user | Has Orders, Profile |
-| Order | orders | Purchase record | Belongs to User |
-| Product | products | Catalog item | In OrderItems |
+## Entities
 
 ### User
 
-**Purpose:** Represents a system user account
+[User.java](https://github.com/owner/repo/blob/main/src/domain/User.java)
 
-**Fields:**
-| Field | Type | Required | Business Rule |
-|-------|------|----------|---------------|
-| id | Long | Yes | Auto-generated |
-| email | Email | Yes | Must be unique, valid format |
-| status | UserStatus | Yes | ACTIVE, SUSPENDED, DELETED |
-
-**Relationships:**
-- One-to-Many: Orders
-- One-to-One: Profile
-
-**Business Methods:**
 ```java
-// User.java:78
-public void suspend() {
-    if (this.status == UserStatus.DELETED) {
-        throw new IllegalStateException("Cannot suspend deleted user");
+@Entity
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Enumerated(EnumType.STRING)
+    private UserStatus status = UserStatus.ACTIVE;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Order> orders = new ArrayList<>();
+
+    public void suspend() {
+        if (this.status == UserStatus.DELETED) {
+            throw new IllegalStateException("Cannot suspend deleted user");
+        }
+        this.status = UserStatus.SUSPENDED;
     }
-    this.status = UserStatus.SUSPENDED;
 }
 ```
 
-**Invariants:**
-- Email must be valid format
-- Cannot transition from DELETED to other states
-
-[Repeat for each entity...]
+[Continue for ALL entities...]
 
 ## Value Objects
 
 ### Money
 
-**Purpose:** Represents monetary amounts with currency
+[Money.java](https://github.com/owner/repo/blob/main/src/domain/Money.java)
 
-**Structure:**
 ```java
 @Embeddable
 public class Money {
     private BigDecimal amount;
+
+    @Enumerated(EnumType.STRING)
     private Currency currency;
+
+    public Money add(Money other) {
+        if (!this.currency.equals(other.currency)) {
+            throw new IllegalArgumentException("Currency mismatch");
+        }
+        return new Money(this.amount.add(other.amount), this.currency);
+    }
 }
 ```
 
-**Usage:** Order.total, OrderItem.price
+## Enums
 
-### Address
+### UserStatus
 
-**Purpose:** Mailing/billing address
-
-**Structure:**
-| Field | Type |
-|-------|------|
-| street | String |
-| city | String |
-| country | Country |
-| postalCode | String |
-
-## Aggregates (if applicable)
-
-### Order Aggregate
-
-**Root:** Order
-**Boundary:** Order, OrderItem, ShippingInfo
-
-**Invariants:**
-- Order total must equal sum of items
-- Cannot add items to shipped order
-- At least one item required
-
-**Consistency Rules:**
-- All OrderItems managed through Order
-- No direct OrderItem repository access
-
-```mermaid
-graph TD
-    subgraph "Order Aggregate"
-        Order[Order - Root]
-        OrderItem[OrderItem]
-        ShippingInfo[ShippingInfo]
-    end
-    Order --> OrderItem
-    Order --> ShippingInfo
+```java
+public enum UserStatus {
+    ACTIVE, SUSPENDED, DELETED
+}
 ```
 
 ## State Machines
 
-### Order Status
+### Order Status Transitions
 
 ```mermaid
 stateDiagram-v2
@@ -254,64 +113,15 @@ stateDiagram-v2
     SUBMITTED --> CANCELLED: cancel()
     PAID --> SHIPPED: ship()
     SHIPPED --> DELIVERED: deliver()
-    CANCELLED --> [*]
-    DELIVERED --> [*]
 ```
 
-## Domain Events
+Source: [Order.java:78-95](https://github.com/owner/repo/blob/main/src/domain/Order.java#L78-L95)
 
-| Event | Trigger | Payload |
-|-------|---------|---------|
-| UserCreated | User registration | userId, email |
-| OrderPlaced | Order submission | orderId, userId, total |
-| OrderShipped | Shipping confirmed | orderId, trackingNumber |
+## Unknowns
 
-## Business Rules Summary
-
-| Rule | Location | Description |
-|------|----------|-------------|
-| Email uniqueness | User entity | Enforced at DB and domain |
-| Order minimum | Order.submit() | Must have at least 1 item |
-| Price immutability | OrderItem | Price locked at creation |
-
-## Cross-Cutting Touchpoints
-
-@cross-cutting:validation
-- Bean Validation annotations throughout
-- Custom validators for complex rules
-
-@cross-cutting:audit
-- BaseEntity with created/updated timestamps
-- Auditable entities track user changes
-
-## Patterns Observed
-
-### Pattern: Entity Base Class
-All entities extend `BaseEntity` with id, created, updated.
-
-### Pattern: Status Enum
-Entities use enum for status with allowed transitions.
-
-### Anti-Pattern: Anemic Services
-Some logic in services should move to entities:
-- `UserService.validateEmail()` → `User.setEmail()`
-
-## Unknowns and Questions
-
-- [ ] Purpose of `LegacyOrder` entity unclear
-- [ ] `Product.metadata` JSON field - structure undocumented
-
-## Recommendations
-
-1. **Move validation to entities** - Email validation in UserService should be in User
-2. **Document state transitions** - Add state diagram to Order class
-3. **Consider aggregate boundaries** - OrderItem accessible outside Order aggregate
+- [List anything unclear]
 ```
 
 ## Refresh Mode
 
-If previous analysis exists:
-1. Load existing domain model doc
-2. Detect changes (new entities, modified rules)
-3. Add `## Changes Since Last Review`
-4. Flag new entities, removed entities, changed relationships
+If `domain-model.md` exists, compare and add `## Changes Since Last Review` section.
