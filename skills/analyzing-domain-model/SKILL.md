@@ -1,6 +1,13 @@
 ---
 name: analyzing-domain-model
 description: Use when analyzing domain entities, value objects, aggregates, and business rules encoded in the model
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(mkdir:*, ls:*)
+  - Write(docs/unwind/**)
+  - Edit(docs/unwind/**)
 ---
 
 # Analyzing Domain Model

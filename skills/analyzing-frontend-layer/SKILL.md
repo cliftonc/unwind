@@ -1,6 +1,13 @@
 ---
 name: analyzing-frontend-layer
 description: Use when analyzing frontend/UI layer including components, state management, routing, and API integration (optional - skip if no frontend exists)
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(mkdir:*, ls:*)
+  - Write(docs/unwind/**)
+  - Edit(docs/unwind/**)
 ---
 
 # Analyzing Frontend Layer

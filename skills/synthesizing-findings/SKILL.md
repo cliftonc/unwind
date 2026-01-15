@@ -1,6 +1,13 @@
 ---
 name: synthesizing-findings
 description: Use after layer analysis is complete to aggregate findings into unified codebase documentation and generate a phased rebuild plan
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(mkdir:*, ls:*)
+  - Write(docs/unwind/**)
+  - Edit(docs/unwind/**)
 ---
 
 # Synthesizing Findings → Rebuild Plan

@@ -1,6 +1,13 @@
 ---
 name: analyzing-integration-tests
 description: Use when analyzing integration tests that verify component interactions, database access, and external service integration
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(mkdir:*, ls:*)
+  - Write(docs/unwind/**)
+  - Edit(docs/unwind/**)
 ---
 
 # Analyzing Integration Tests

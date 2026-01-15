@@ -1,6 +1,13 @@
 ---
 name: analyzing-service-layer
 description: Use when analyzing business logic, use cases, service orchestration, and data transformation including DTOs and mappers
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(mkdir:*, ls:*)
+  - Write(docs/unwind/**)
+  - Edit(docs/unwind/**)
 ---
 
 # Analyzing Service Layer

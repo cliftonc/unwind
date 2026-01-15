@@ -1,6 +1,13 @@
 ---
 name: discovering-architecture
 description: Use when starting reverse engineering on an unfamiliar codebase to identify layers, patterns, and structure before detailed analysis
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(git:*, mkdir:*, ls:*)
+  - Write(docs/unwind/**)
+  - Edit(docs/unwind/**)
 ---
 
 # Discovering Architecture

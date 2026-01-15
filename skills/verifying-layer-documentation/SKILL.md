@@ -1,6 +1,14 @@
 ---
 name: verifying-layer-documentation
 description: Use after layer analysis is complete to verify and augment documentation against source code. Run as parallel agents per layer.
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(mkdir:*, ls:*)
+  - Write(docs/unwind/**)
+  - Edit(docs/unwind/**)
+  - Task
 ---
 
 # Verifying Layer Documentation

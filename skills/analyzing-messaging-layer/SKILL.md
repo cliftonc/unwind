@@ -1,6 +1,13 @@
 ---
 name: analyzing-messaging-layer
 description: Use when analyzing event-driven systems, message queues, async processing, and pub/sub patterns
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(mkdir:*, ls:*)
+  - Write(docs/unwind/**)
+  - Edit(docs/unwind/**)
 ---
 
 # Analyzing Messaging Layer

@@ -1,6 +1,10 @@
 ---
 name: using-unwind
 description: Use when starting any reverse engineering task - establishes how to find and use Unwind skills for codebase analysis, service mapping, and documentation
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
 ---
 
 # Using Unwind
@@ -80,24 +84,30 @@ synthesizing-findings       → CODEBASE.md
 docs/unwind/
 ├── architecture.md
 ├── layers/
-│   ├── database.md (or database/)
-│   ├── database-verification.md      # Verification report
-│   ├── domain-model.md
-│   ├── domain-model-verification.md
-│   ├── service-layer.md
-│   ├── service-layer-verification.md
-│   ├── api.md
-│   ├── api-verification.md
-│   ├── messaging.md
-│   ├── frontend.md
-│   ├── frontend-verification.md
-│   ├── unit-tests.md
-│   ├── integration-tests.md
-│   └── e2e-tests.md
-└── CODEBASE.md
+│   ├── database/
+│   │   ├── index.md
+│   │   ├── schema.md
+│   │   ├── repositories.md
+│   │   └── verification.md
+│   ├── domain-model/
+│   │   ├── index.md
+│   │   ├── entities.md
+│   │   └── verification.md
+│   ├── service-layer/
+│   │   ├── index.md
+│   │   ├── services.md
+│   │   ├── formulas.md
+│   │   └── verification.md
+│   ├── api/
+│   │   ├── index.md
+│   │   ├── endpoints.md
+│   │   └── verification.md
+│   └── [other layers...]
+├── CODEBASE.md
+└── REBUILD-PLAN.md
 ```
 
-Large layers split into subdirectories with index.
+Each layer is a folder with `index.md` + section files for incremental writes.
 
 ## Quick Start
 

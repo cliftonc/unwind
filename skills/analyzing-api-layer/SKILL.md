@@ -1,6 +1,13 @@
 ---
 name: analyzing-api-layer
 description: Use when analyzing REST/GraphQL API endpoints, contracts, authentication, and client-facing interfaces
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(mkdir:*, ls:*)
+  - Write(docs/unwind/**)
+  - Edit(docs/unwind/**)
 ---
 
 # Analyzing API Layer

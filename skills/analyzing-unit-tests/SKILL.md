@@ -1,6 +1,13 @@
 ---
 name: analyzing-unit-tests
 description: Use when analyzing unit test coverage, patterns, and test code for isolated component testing
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(mkdir:*, ls:*)
+  - Write(docs/unwind/**)
+  - Edit(docs/unwind/**)
 ---
 
 # Analyzing Unit Tests

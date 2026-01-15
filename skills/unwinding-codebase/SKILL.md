@@ -1,6 +1,14 @@
 ---
 name: unwinding-codebase
 description: Use after discovering-architecture to orchestrate layer-by-layer analysis using specialist subagents
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(git:*, mkdir:*, ls:*)
+  - Write(docs/unwind/**)
+  - Edit(docs/unwind/**)
+  - Task
 ---
 
 # Unwinding Codebase

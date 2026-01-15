@@ -1,6 +1,13 @@
 ---
 name: analyzing-database-layer
 description: Use when analyzing the database layer including schema, migrations, ORM configuration, and data access patterns
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(mkdir:*, ls:*)
+  - Write(docs/unwind/**)
+  - Edit(docs/unwind/**)
 ---
 
 # Analyzing Database Layer

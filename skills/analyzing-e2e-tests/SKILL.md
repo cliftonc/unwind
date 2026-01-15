@@ -1,6 +1,13 @@
 ---
 name: analyzing-e2e-tests
 description: Use when analyzing end-to-end tests including browser automation, API workflows, and full system testing
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(mkdir:*, ls:*)
+  - Write(docs/unwind/**)
+  - Edit(docs/unwind/**)
 ---
 
 # Analyzing E2E Tests
