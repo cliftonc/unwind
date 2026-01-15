@@ -2,6 +2,21 @@
 
 Skills library for reverse engineering codebases. Produces complete, machine-readable documentation.
 
+## Quick Start
+
+```
+1. Use unwind:discovering-architecture
+2. Review docs/unwind/architecture.md
+3. Use unwind:unwinding-codebase
+4. Use unwind:synthesizing-findings
+```
+
+**Output:** `docs/unwind/CODEBASE.md` + individual layer docs
+
+[Example Output →](#) *(coming soon)*
+
+---
+
 ## Installation
 
 ### Claude Code
@@ -25,14 +40,7 @@ Restart Claude Code after installation.
 /plugin install https://github.com/cliftonc/unwind
 ```
 
-## Principles
-
-- **Completeness**: Document ALL items (30 tables = 30 documented)
-- **Machine-readable**: Use actual code, SQL, mermaid - not markdown recreation
-- **Link to source**: GitHub links with line numbers
-- **No commentary**: Facts only, no speculation
-
-See `skills/analysis-principles.md` for details.
+---
 
 ## Workflow
 
@@ -47,6 +55,15 @@ unwinding-codebase          → dispatches layer specialists
         │
 synthesizing-findings       → CODEBASE.md
 ```
+
+## Principles
+
+- **Completeness**: Document ALL items (30 tables = 30 documented)
+- **Machine-readable**: Actual code, SQL, mermaid - not markdown recreation
+- **Link to source**: GitHub links with line numbers
+- **No commentary**: Facts only, no speculation
+
+See `skills/analysis-principles.md` for details.
 
 ## Skills
 
@@ -77,7 +94,7 @@ synthesizing-findings       → CODEBASE.md
 | `analyzing-integration-tests` | Integration test infrastructure |
 | `analyzing-e2e-tests` | E2E tests and page objects |
 
-## Output
+## Output Structure
 
 ```
 docs/unwind/
