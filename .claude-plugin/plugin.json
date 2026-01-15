@@ -1,0 +1,13 @@
+{
+  "name": "unwind",
+  "description": "Skills library for reverse engineering: codebase analysis, service mapping, API discovery, and documentation generation",
+  "version": "0.1.0",
+  "author": {
+    "name": "clifton",
+    "email": "clifton@guidemode.dev"
+  },
+  "homepage": "https://github.com/cliftonc/unwind",
+  "repository": "https://github.com/cliftonc/unwind",
+  "license": "MIT",
+  "keywords": ["skills", "reverse-engineering", "codebase-analysis", "api-discovery", "documentation"]
+}
