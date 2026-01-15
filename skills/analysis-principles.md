@@ -6,10 +6,7 @@ All Unwind analysis skills follow these principles.
 
 Document **everything**. If there are 30 tables, document all 30. If there are 50 services, document all 50.
 
-If a document becomes too large:
-- Break into linked sub-documents (e.g., `layers/database/users-domain.md`)
-- Create an index document that links to sub-documents
-- Group by domain, module, or logical boundary
+All documentation uses folder structure (see principle 6) to handle completeness without hitting size limits.
 
 ## 2. Machine-Readable Formats
 
@@ -91,19 +88,27 @@ If something is unclear, mark it as unknown:
 - Purpose of `legacy_flag` field in users table
 ```
 
-## 6. Document Structure
+## 6. Document Structure (Mandatory Folder Format)
 
-When output becomes large, use this structure:
+**Always** use folder structure for every layer - never a single file:
 
 ```
 docs/unwind/layers/{layer}/
-├── index.md           # Overview with links
-├── {domain-1}.md      # Domain/module breakdown
-├── {domain-2}.md
-└── {domain-n}.md
+├── index.md           # Overview, counts, links to all sections
+├── {section-1}.md     # Content-type sections (e.g., schema.md, services.md)
+├── {section-2}.md
+└── {domain-n}.md      # Domain splits for large layers (e.g., users.md, orders.md)
 ```
 
-The index.md links to all sub-documents and provides aggregate stats.
+**Organization strategy:**
+- **Small layers (< 20 items):** Split by content type (schema.md, repositories.md)
+- **Large layers (20+ items):** Split by domain/module (users.md, orders.md)
+- **index.md is mandatory:** Links to all sections, provides aggregate counts
+
+The folder structure ensures:
+- Smaller files that fit within token limits
+- Incremental writes are possible (see principle 14)
+- Easier verification and synthesis
 
 ## 7. Code Over Prose
 
@@ -247,3 +252,59 @@ Document where behavior varies based on conditions:
 
 **Source:** `builder.ts:193-215`
 ```
+
+## 14. Incremental Writing
+
+**Write each section file immediately after analyzing it.** Do not buffer all analysis and write at the end.
+
+**Process:**
+1. Create the layer folder: `docs/unwind/layers/{layer}/`
+2. Create `index.md` with header and empty sections list
+3. After analyzing each section:
+   - Write the section file immediately (e.g., `schema.md`)
+   - Update `index.md` to add link to the new section
+4. Finalize `index.md` with counts and summary
+
+**Why this matters:**
+- Large codebases may exhaust token budget before a single large write
+- Incremental writes ensure partial progress is saved
+- Smaller files are more reliable to write
+
+**Example incremental flow for database layer:**
+```
+1. mkdir docs/unwind/layers/database/
+2. Write index.md (skeleton)
+3. Analyze tables → Write schema.md → Update index.md
+4. Analyze repos → Write repositories.md → Update index.md
+5. Analyze JSONB → Write jsonb-schemas.md → Update index.md
+6. Finalize index.md with counts
+```
+
+## 15. Migrations: Current State Only
+
+For database migrations, document only the **current schema state**, not migration history.
+
+**Do:**
+```markdown
+## Migrations
+
+**Location:** `src/db/migrations/`
+
+The current schema state (result of all migrations) is documented in `schema.md`.
+```
+
+**Don't:**
+```markdown
+## Migrations
+
+### 001_create_users.sql
+Creates users table with id, email, password...
+
+### 002_add_status.sql
+Adds status column to users...
+
+### 003_add_index.sql
+...
+```
+
+**Why:** Migration history is for version control, not rebuild. AI rebuild agents need the final schema, not the journey.

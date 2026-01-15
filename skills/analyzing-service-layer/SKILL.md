@@ -5,28 +5,82 @@ description: Use when analyzing business logic, use cases, service orchestration
 
 # Analyzing Service Layer
 
-**Output:** `docs/unwind/layers/service-layer.md` (or `service-layer/` directory if large)
+**Output:** `docs/unwind/layers/service-layer/` (folder with index.md + section files)
 
-**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary.
+**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary, incremental writes.
 
-## Process
+## Output Structure
 
-1. **Find all service artifacts:**
-   - Service classes
-   - DTOs (request/response)
-   - Mappers
-   - External clients
+```
+docs/unwind/layers/service-layer/
+├── index.md           # Overview, service count, dependency graph
+├── services.md        # Service class definitions
+├── dtos.md            # Data transfer objects
+├── mappers.md         # Mapping logic
+├── formulas.md        # Business calculations [MUST]
+└── clients.md         # External client integrations
+```
 
-2. **Document ALL services:**
-   - Include actual method signatures
-   - Show transaction boundaries
-   - Link to source files
+For large codebases (20+ services), split by domain:
+```
+docs/unwind/layers/service-layer/
+├── index.md
+├── users-domain.md
+├── orders-domain.md
+└── ...
+```
 
-3. **Document ALL DTOs:**
-   - Include actual class definitions
-   - Show validation annotations
+## Process (Incremental Writes)
 
-4. **If large:** Split by domain into `layers/service-layer/{domain}.md`
+**Step 1: Setup**
+```bash
+mkdir -p docs/unwind/layers/service-layer/
+```
+Write initial `index.md`:
+```markdown
+# Service Layer
+
+## Sections
+- [Services](services.md) - _pending_
+- [DTOs](dtos.md) - _pending_
+- [Mappers](mappers.md) - _pending_
+- [Formulas](formulas.md) - _pending_
+- [External Clients](clients.md) - _pending_
+
+## Summary
+_Analysis in progress..._
+```
+
+**Step 2: Analyze and write services.md**
+1. Find all service classes
+2. Include method signatures, transaction boundaries
+3. Write `services.md` immediately
+4. Update `index.md`
+
+**Step 3: Analyze and write dtos.md**
+1. Find all DTOs (request/response)
+2. Include validation annotations
+3. Write `dtos.md` immediately
+4. Update `index.md`
+
+**Step 4: Analyze and write mappers.md**
+1. Find all mappers
+2. Write `mappers.md` immediately
+3. Update `index.md`
+
+**Step 5: Analyze and write formulas.md**
+1. Extract ALL business calculations [MUST]
+2. Document constants, edge cases
+3. Write `formulas.md` immediately
+4. Update `index.md`
+
+**Step 6: Analyze and write clients.md** (if applicable)
+1. Find external client integrations
+2. Write `clients.md` immediately
+3. Update `index.md`
+
+**Step 7: Finalize index.md**
+Add dependency graph and final counts
 
 ## Output Format
 
@@ -204,4 +258,4 @@ Note where transactions begin/end and any batch processing patterns.
 
 ## Refresh Mode
 
-If `service-layer.md` exists, compare and add `## Changes Since Last Review` section.
+If `docs/unwind/layers/service-layer/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.

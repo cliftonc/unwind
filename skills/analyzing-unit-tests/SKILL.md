@@ -5,28 +5,73 @@ description: Use when analyzing unit test coverage, patterns, and test code for 
 
 # Analyzing Unit Tests
 
-**Output:** `docs/unwind/layers/unit-tests.md` (or `unit-tests/` directory if large)
+**Output:** `docs/unwind/layers/unit-tests/` (folder with index.md + section files)
 
-**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary.
+**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary, incremental writes.
 
-## Process
+## Output Structure
 
-1. **Find all unit test artifacts:**
-   - Test files (`*Test.java`, `*.test.ts`, `test_*.py`)
-   - Test configuration
-   - Mock/stub definitions
-   - Test utilities
+```
+docs/unwind/layers/unit-tests/
+├── index.md           # Test summary, coverage overview
+├── service-tests.md   # Service layer tests
+├── domain-tests.md    # Domain/entity tests
+├── utilities.md       # Test utilities, factories
+└── coverage-gaps.md   # Classes without tests
+```
 
-2. **Document ALL test classes:**
-   - Include actual test code
-   - Show what is being tested
-   - Link to source files
+For large codebases (50+ test files), split by domain:
+```
+docs/unwind/layers/unit-tests/
+├── index.md
+├── users-tests.md
+├── orders-tests.md
+└── ...
+```
 
-3. **Map coverage:**
-   - Which classes/functions have tests
-   - Which do not
+## Process (Incremental Writes)
 
-4. **If large:** Split by domain into `layers/unit-tests/{domain}.md`
+**Step 1: Setup**
+```bash
+mkdir -p docs/unwind/layers/unit-tests/
+```
+Write initial `index.md`:
+```markdown
+# Unit Tests
+
+## Sections
+- [Service Tests](service-tests.md) - _pending_
+- [Domain Tests](domain-tests.md) - _pending_
+- [Test Utilities](utilities.md) - _pending_
+- [Coverage Gaps](coverage-gaps.md) - _pending_
+
+## Summary
+_Analysis in progress..._
+```
+
+**Step 2: Analyze and write service-tests.md**
+1. Find all service layer tests
+2. Include actual test code showing what is tested
+3. Write `service-tests.md` immediately
+4. Update `index.md`
+
+**Step 3: Analyze and write domain-tests.md**
+1. Find all domain/entity tests
+2. Write `domain-tests.md` immediately
+3. Update `index.md`
+
+**Step 4: Analyze and write utilities.md**
+1. Find test utilities, factories, mocks
+2. Write `utilities.md` immediately
+3. Update `index.md`
+
+**Step 5: Analyze and write coverage-gaps.md**
+1. Identify classes without tests
+2. Write `coverage-gaps.md` immediately
+3. Update `index.md`
+
+**Step 6: Finalize index.md**
+Add coverage summary table
 
 ## Output Format
 
@@ -169,4 +214,4 @@ Classes without unit tests:
 
 ## Refresh Mode
 
-If `unit-tests.md` exists, compare and add `## Changes Since Last Review` section.
+If `docs/unwind/layers/unit-tests/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.

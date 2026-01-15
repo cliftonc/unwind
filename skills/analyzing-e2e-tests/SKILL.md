@@ -5,29 +5,73 @@ description: Use when analyzing end-to-end tests including browser automation, A
 
 # Analyzing E2E Tests
 
-**Output:** `docs/unwind/layers/e2e-tests.md` (or `e2e-tests/` directory if large)
+**Output:** `docs/unwind/layers/e2e-tests/` (folder with index.md + section files)
 
-**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary.
+**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary, incremental writes.
 
-## Process
+## Output Structure
 
-1. **Find all E2E test artifacts:**
-   - E2E test files (`*.spec.ts`, `*.e2e.ts`, `*_e2e_test.py`)
-   - Playwright/Cypress/Selenium configuration
-   - Test fixtures and data
-   - Page objects
+```
+docs/unwind/layers/e2e-tests/
+├── index.md           # Test summary, browser matrix
+├── config.md          # Playwright/Cypress config, CI setup
+├── page-objects.md    # Page object definitions
+├── fixtures.md        # Test data and fixtures
+└── flows.md           # User flow tests
+```
 
-2. **Document ALL E2E tests:**
-   - Include actual test code
-   - Show user flows tested
-   - Link to source files
+For large codebases, split by feature:
+```
+docs/unwind/layers/e2e-tests/
+├── index.md
+├── config.md
+├── auth-tests.md
+├── checkout-tests.md
+└── ...
+```
 
-3. **Document test infrastructure:**
-   - Browser configuration
-   - Test environment setup
-   - CI/CD integration
+## Process (Incremental Writes)
 
-4. **If large:** Split by feature into `layers/e2e-tests/{feature}.md`
+**Step 1: Setup**
+```bash
+mkdir -p docs/unwind/layers/e2e-tests/
+```
+Write initial `index.md`:
+```markdown
+# E2E Tests
+
+## Sections
+- [Configuration](config.md) - _pending_
+- [Page Objects](page-objects.md) - _pending_
+- [Test Fixtures](fixtures.md) - _pending_
+- [User Flows](flows.md) - _pending_
+
+## Summary
+_Analysis in progress..._
+```
+
+**Step 2: Analyze and write config.md**
+1. Find Playwright/Cypress config, CI setup
+2. Write `config.md` immediately
+3. Update `index.md`
+
+**Step 3: Analyze and write page-objects.md**
+1. Find all page object definitions
+2. Write `page-objects.md` immediately
+3. Update `index.md`
+
+**Step 4: Analyze and write fixtures.md**
+1. Find test data and fixtures
+2. Write `fixtures.md` immediately
+3. Update `index.md`
+
+**Step 5: Analyze and write flows.md**
+1. Find all user flow tests
+2. Write `flows.md` immediately
+3. Update `index.md`
+
+**Step 6: Finalize index.md**
+Add test summary and browser matrix
 
 ## Output Format
 
@@ -238,4 +282,4 @@ jobs:
 
 ## Refresh Mode
 
-If `e2e-tests.md` exists, compare and add `## Changes Since Last Review` section.
+If `docs/unwind/layers/e2e-tests/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.

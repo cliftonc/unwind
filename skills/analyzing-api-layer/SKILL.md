@@ -5,28 +5,75 @@ description: Use when analyzing REST/GraphQL API endpoints, contracts, authentic
 
 # Analyzing API Layer
 
-**Output:** `docs/unwind/layers/api.md` (or `api/` directory if large)
+**Output:** `docs/unwind/layers/api/` (folder with index.md + section files)
 
-**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary.
+**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary, incremental writes.
 
-## Process
+## Output Structure
 
-1. **Find all API artifacts:**
-   - Controller/route classes
-   - OpenAPI/Swagger specs
-   - GraphQL schemas
-   - Security configuration
+```
+docs/unwind/layers/api/
+├── index.md           # Endpoint summary table, route count
+├── endpoints.md       # All controller/route definitions
+├── auth.md            # Authentication & authorization config
+├── contracts.md       # OpenAPI/AsyncAPI/TSRest specs [CRITICAL]
+└── errors.md          # Error handling patterns
+```
 
-2. **Document ALL endpoints:**
-   - Include actual controller code
-   - Extract OpenAPI spec if available
-   - Link to source files
+For large codebases (20+ route files), split by domain:
+```
+docs/unwind/layers/api/
+├── index.md
+├── users-api.md
+├── orders-api.md
+└── ...
+```
 
-3. **Document authentication:**
-   - Include actual security config
-   - Show filter/middleware code
+## Process (Incremental Writes)
 
-4. **If large:** Split by domain into `layers/api/{domain}.md`
+**Step 1: Setup**
+```bash
+mkdir -p docs/unwind/layers/api/
+```
+Write initial `index.md`:
+```markdown
+# API Layer
+
+## Sections
+- [Endpoints](endpoints.md) - _pending_
+- [Authentication](auth.md) - _pending_
+- [API Contracts](contracts.md) - _pending_
+- [Error Handling](errors.md) - _pending_
+
+## Endpoint Summary
+_Analysis in progress..._
+```
+
+**Step 2: Analyze and write contracts.md** [CRITICAL - DO FIRST]
+1. Search for OpenAPI, AsyncAPI, TSRest, GraphQL specs
+2. Include COMPLETE specs (not summaries)
+3. Write `contracts.md` immediately
+4. Update `index.md`
+
+**Step 3: Analyze and write endpoints.md**
+1. Find all controller/route classes
+2. Include actual code with annotations
+3. Write `endpoints.md` immediately
+4. Update `index.md`
+
+**Step 4: Analyze and write auth.md**
+1. Find security configuration
+2. Document permission matrix
+3. Write `auth.md` immediately
+4. Update `index.md`
+
+**Step 5: Analyze and write errors.md**
+1. Find error handlers, exception mappers
+2. Write `errors.md` immediately
+3. Update `index.md`
+
+**Step 6: Finalize index.md**
+Add endpoint summary table with final counts
 
 ## Output Format
 
@@ -296,4 +343,4 @@ For each endpoint, document required permissions:
 
 ## Refresh Mode
 
-If `api.md` exists, compare and add `## Changes Since Last Review` section.
+If `docs/unwind/layers/api/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.

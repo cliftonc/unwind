@@ -5,28 +5,76 @@ description: Use when analyzing frontend/UI layer including components, state ma
 
 # Analyzing Frontend Layer
 
-**Output:** `docs/unwind/layers/frontend.md` (or `frontend/` directory if large)
+**Output:** `docs/unwind/layers/frontend/` (folder with index.md + section files)
 
-**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary.
+**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary, incremental writes.
 
-## Process
+## Output Structure
 
-1. **Find all frontend artifacts:**
-   - Component files
-   - State management (store, slices, atoms)
-   - Route definitions
-   - API client/hooks
+```
+docs/unwind/layers/frontend/
+├── index.md           # Route overview, page count, tech stack
+├── routes.md          # Routing structure
+├── pages.md           # Page purposes and user flows [MUST]
+├── state.md           # State management
+└── api-hooks.md       # API integration points
+```
 
-2. **Document ALL components:**
-   - Include actual component code
-   - Show props/types
-   - Link to source files
+For large codebases (20+ pages), split by feature:
+```
+docs/unwind/layers/frontend/
+├── index.md
+├── auth-feature.md
+├── dashboard-feature.md
+└── ...
+```
 
-3. **Document state management:**
-   - Include actual store definitions
-   - Show all slices/reducers/atoms
+## Process (Incremental Writes)
 
-4. **If large:** Split by feature into `layers/frontend/{feature}.md`
+**Step 1: Setup**
+```bash
+mkdir -p docs/unwind/layers/frontend/
+```
+Write initial `index.md`:
+```markdown
+# Frontend Layer
+
+## Sections
+- [Routes](routes.md) - _pending_
+- [Pages](pages.md) - _pending_
+- [State](state.md) - _pending_
+- [API Hooks](api-hooks.md) - _pending_
+
+## Summary
+_Analysis in progress..._
+```
+
+**Step 2: Analyze and write routes.md**
+1. Find route definitions
+2. Document URL patterns and nesting
+3. Write `routes.md` immediately
+4. Update `index.md`
+
+**Step 3: Analyze and write pages.md** [MUST - Focus on WHAT not HOW]
+1. Document page purposes and user flows
+2. List permission gates and API dependencies
+3. Write `pages.md` immediately
+4. Update `index.md`
+
+**Step 4: Analyze and write state.md**
+1. Find state management (store, slices, atoms)
+2. Document what state persists
+3. Write `state.md` immediately
+4. Update `index.md`
+
+**Step 5: Analyze and write api-hooks.md**
+1. Find API client/hooks
+2. Document endpoints consumed
+3. Write `api-hooks.md` immediately
+4. Update `index.md`
+
+**Step 6: Finalize index.md**
+Add tech stack, page count, component tree
 
 ## Output Format
 
@@ -252,4 +300,4 @@ The goal is to enable rebuild in ANY framework. Prioritize documenting functiona
 
 ## Refresh Mode
 
-If `frontend.md` exists, compare and add `## Changes Since Last Review` section.
+If `docs/unwind/layers/frontend/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.

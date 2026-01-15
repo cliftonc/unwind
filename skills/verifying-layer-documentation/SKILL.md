@@ -47,33 +47,38 @@ For each layer that has documentation, spawn a verification agent:
 
 You are verifying the {LAYER} layer documentation for completeness and accuracy.
 
-**Documentation:** `docs/unwind/layers/{layer}.md`
+**Documentation:** `docs/unwind/layers/{layer}/index.md` (and all linked section files)
 **Source Files:** {SOURCE_PATHS}
 
 ### Your Tasks
 
-1. **COUNT VERIFICATION**
+1. **READ ALL SECTION FILES**
+   - Read `docs/unwind/layers/{layer}/index.md`
+   - Follow links to read all section files
+   - Build complete picture of documented items
+
+2. **COUNT VERIFICATION**
    - Count actual items in source (tables, routes, hooks, etc.)
    - Compare to documented count
    - Report: "Documented: X, Actual: Y, Gap: Z"
 
-2. **ITEM-BY-ITEM COMPARISON**
+3. **ITEM-BY-ITEM COMPARISON**
    For each documented item:
    - Does it exist in source? (VERIFIED / NOT FOUND)
    - Is the documentation accurate? (ACCURATE / INACCURATE)
    - What details are missing?
 
-3. **MISSING ITEM DETECTION**
+4. **MISSING ITEM DETECTION**
    For each item in source:
    - Is it documented? (DOCUMENTED / MISSING)
    - If missing, what category? (MUST / SHOULD / DON'T)
 
-4. **CATEGORIZATION CHECK**
+5. **CATEGORIZATION CHECK**
    - Does each item have [MUST], [SHOULD], or [DON'T] tag?
    - Are the tags appropriate?
 
-5. **PRODUCE AUGMENTATION**
-   Create a `{layer}-verification.md` file with:
+6. **PRODUCE VERIFICATION REPORT**
+   Create `docs/unwind/layers/{layer}/verification.md` with:
    - Accuracy issues found
    - Missing items to add
    - Suggested fixes
@@ -200,8 +205,8 @@ You are verifying the {LAYER} layer documentation for completeness and accuracy.
 
 Each verifier produces:
 
-1. **`docs/unwind/layers/{layer}-verification.md`** - Verification report
-2. **Updates to `docs/unwind/layers/{layer}.md`** - Fixes applied directly
+1. **`docs/unwind/layers/{layer}/verification.md`** - Verification report (inside the layer folder)
+2. **Updates to section files** - Fixes applied to specific section .md files as needed
 
 ## Integration with Synthesis
 
@@ -218,16 +223,17 @@ After all verifiers complete, the `synthesizing-findings` skill should:
 ```
 Verify the database layer documentation.
 
-1. Read docs/unwind/layers/database.md
-2. Read src/schema.ts (or equivalent schema file)
-3. Count all tables in schema
-4. For each table:
-   - Is it documented?
+1. Read docs/unwind/layers/database/index.md
+2. Read all linked section files (schema.md, repositories.md, etc.)
+3. Read src/schema.ts (or equivalent schema file)
+4. Count all tables in schema
+5. For each table:
+   - Is it documented in schema.md?
    - Are all columns documented?
    - Are types accurate?
-5. For each JSONB column:
-   - Is the structure documented?
-6. Produce verification report and fixes.
+6. For each JSONB column:
+   - Is the structure documented in jsonb-schemas.md?
+7. Produce verification report at docs/unwind/layers/database/verification.md
 ```
 
 ### Service Verifier
@@ -235,16 +241,17 @@ Verify the database layer documentation.
 ```
 Verify the service layer documentation.
 
-1. Read docs/unwind/layers/service-layer.md
-2. Read all files in src/server-libs/ (or equivalent)
-3. For each documented formula:
+1. Read docs/unwind/layers/service-layer/index.md
+2. Read all linked section files (services.md, formulas.md, etc.)
+3. Read all files in src/server-libs/ (or equivalent)
+4. For each documented formula in formulas.md:
    - Find the source code
    - Verify the formula matches exactly
    - Check for edge cases
-4. For each calculation function:
+5. For each calculation function:
    - Are all branches documented?
    - Are hardcoded constants listed?
-5. Produce verification report and fixes.
+6. Produce verification report at docs/unwind/layers/service-layer/verification.md
 ```
 
 ### API Verifier
@@ -252,13 +259,14 @@ Verify the service layer documentation.
 ```
 Verify the API layer documentation.
 
-1. Read docs/unwind/layers/api.md
-2. List all files in src/routes/ (or equivalent)
-3. For each route file:
-   - Is it mentioned in docs?
+1. Read docs/unwind/layers/api/index.md
+2. Read all linked section files (endpoints.md, auth.md, etc.)
+3. List all files in src/routes/ (or equivalent)
+4. For each route file:
+   - Is it mentioned in endpoints.md?
    - Are all endpoints listed?
-4. For missing routes, document them
-5. Produce verification report and fixes.
+5. For missing routes, document them
+6. Produce verification report at docs/unwind/layers/api/verification.md
 ```
 
 ## Rebuild Readiness Scoring

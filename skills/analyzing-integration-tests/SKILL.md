@@ -5,29 +5,80 @@ description: Use when analyzing integration tests that verify component interact
 
 # Analyzing Integration Tests
 
-**Output:** `docs/unwind/layers/integration-tests.md` (or `integration-tests/` directory if large)
+**Output:** `docs/unwind/layers/integration-tests/` (folder with index.md + section files)
 
-**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary.
+**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary, incremental writes.
 
-## Process
+## Output Structure
 
-1. **Find all integration test artifacts:**
-   - Integration test files (`*IT.java`, `*.integration.test.ts`)
-   - Test containers configuration
-   - Test database setup
-   - External service mocks (WireMock, etc.)
+```
+docs/unwind/layers/integration-tests/
+├── index.md           # Test summary, infrastructure overview
+├── config.md          # Test containers, database setup
+├── repository-tests.md # Database integration tests
+├── api-tests.md       # API endpoint tests
+├── external-tests.md  # External service integration tests
+└── messaging-tests.md # Kafka/queue tests
+```
 
-2. **Document ALL integration tests:**
-   - Include actual test code
-   - Show what integrations are tested
-   - Link to source files
+For large codebases, split by integration type:
+```
+docs/unwind/layers/integration-tests/
+├── index.md
+├── config.md
+├── database/
+├── api/
+└── messaging/
+```
 
-3. **Document test infrastructure:**
-   - Database setup
-   - Container configuration
-   - External service stubs
+## Process (Incremental Writes)
 
-4. **If large:** Split by integration type into `layers/integration-tests/{type}.md`
+**Step 1: Setup**
+```bash
+mkdir -p docs/unwind/layers/integration-tests/
+```
+Write initial `index.md`:
+```markdown
+# Integration Tests
+
+## Sections
+- [Configuration](config.md) - _pending_
+- [Repository Tests](repository-tests.md) - _pending_
+- [API Tests](api-tests.md) - _pending_
+- [External Service Tests](external-tests.md) - _pending_
+- [Messaging Tests](messaging-tests.md) - _pending_
+
+## Summary
+_Analysis in progress..._
+```
+
+**Step 2: Analyze and write config.md**
+1. Find test containers, database setup, WireMock config
+2. Write `config.md` immediately
+3. Update `index.md`
+
+**Step 3: Analyze and write repository-tests.md**
+1. Find all database integration tests
+2. Write `repository-tests.md` immediately
+3. Update `index.md`
+
+**Step 4: Analyze and write api-tests.md**
+1. Find all API endpoint tests
+2. Write `api-tests.md` immediately
+3. Update `index.md`
+
+**Step 5: Analyze and write external-tests.md** (if applicable)
+1. Find external service integration tests
+2. Write `external-tests.md` immediately
+3. Update `index.md`
+
+**Step 6: Analyze and write messaging-tests.md** (if applicable)
+1. Find Kafka/queue tests
+2. Write `messaging-tests.md` immediately
+3. Update `index.md`
+
+**Step 7: Finalize index.md**
+Add integration summary table
 
 ## Output Format
 
@@ -223,4 +274,4 @@ class OrderEventIT {
 
 ## Refresh Mode
 
-If `integration-tests.md` exists, compare and add `## Changes Since Last Review` section.
+If `docs/unwind/layers/integration-tests/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.

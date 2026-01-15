@@ -5,29 +5,74 @@ description: Use when analyzing domain entities, value objects, aggregates, and 
 
 # Analyzing Domain Model
 
-**Output:** `docs/unwind/layers/domain-model.md` (or `domain-model/` directory if large)
+**Output:** `docs/unwind/layers/domain-model/` (folder with index.md + section files)
 
-**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary.
+**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary, incremental writes.
 
-## Process
+## Output Structure
 
-1. **Find all domain artifacts:**
-   - Entity classes
-   - Value objects
-   - Enums
-   - Domain events
+```
+docs/unwind/layers/domain-model/
+├── index.md           # Overview, entity count, links to sections
+├── entities.md        # All entity definitions
+├── value-objects.md   # Value objects, embeddables
+├── enums.md           # All enum/union types
+└── validation.md      # Validation rules, constraints, state machines
+```
 
-2. **Document ALL entities:**
-   - Include actual class definitions
-   - Show field types and annotations
-   - Link to source files
+For large codebases (20+ entities), split by aggregate/domain:
+```
+docs/unwind/layers/domain-model/
+├── index.md
+├── users-aggregate.md
+├── orders-aggregate.md
+└── ...
+```
 
-3. **Extract business rules:**
-   - Validation logic (actual code)
-   - State transitions (actual code)
-   - Invariants (actual code)
+## Process (Incremental Writes)
 
-4. **If large:** Split by aggregate/domain into `layers/domain-model/{aggregate}.md`
+**Step 1: Setup**
+```bash
+mkdir -p docs/unwind/layers/domain-model/
+```
+Write initial `index.md`:
+```markdown
+# Domain Model
+
+## Sections
+- [Entities](entities.md) - _pending_
+- [Value Objects](value-objects.md) - _pending_
+- [Enums](enums.md) - _pending_
+- [Validation](validation.md) - _pending_
+
+## Summary
+_Analysis in progress..._
+```
+
+**Step 2: Analyze and write entities.md**
+1. Find all entity classes
+2. Include actual class definitions with annotations
+3. Write `entities.md` immediately
+4. Update `index.md`
+
+**Step 3: Analyze and write value-objects.md**
+1. Find embeddables, value objects
+2. Write `value-objects.md` immediately
+3. Update `index.md`
+
+**Step 4: Analyze and write enums.md**
+1. Find all enum/union types
+2. Document all values
+3. Write `enums.md` immediately
+4. Update `index.md`
+
+**Step 5: Analyze and write validation.md**
+1. Extract validation logic, state machines
+2. Write `validation.md` immediately
+3. Update `index.md`
+
+**Step 6: Finalize index.md**
+Update with final counts and summary
 
 ## Output Format
 
@@ -187,4 +232,4 @@ Document any self-referential constraints:
 
 ## Refresh Mode
 
-If `domain-model.md` exists, compare and add `## Changes Since Last Review` section.
+If `docs/unwind/layers/domain-model/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.

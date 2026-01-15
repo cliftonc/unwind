@@ -6,9 +6,9 @@ description: Use after discovering-architecture to orchestrate layer-by-layer an
 # Unwinding Codebase
 
 **Requires:** `docs/unwind/architecture.md`
-**Produces:** `docs/unwind/layers/*.md` via subagents
+**Produces:** `docs/unwind/layers/*/` folders via subagents (each with index.md + section files)
 
-**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary.
+**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary, **incremental writes**.
 
 ## Process
 
@@ -43,7 +43,16 @@ Task(subagent_type="general-purpose")
     Entry points from architecture.md:
     [entry_points]
 
-    Write to: docs/unwind/layers/[layer].md
+    IMPORTANT: Write incrementally to folder structure.
+    1. Create docs/unwind/layers/[layer]/ directory first
+    2. Write initial index.md with skeleton sections
+    3. Analyze each section and write its .md file IMMEDIATELY after analyzing
+    4. Update index.md after each section file is written
+    5. Do NOT buffer all content for a single write at the end
+
+    Output folder: docs/unwind/layers/[layer]/
+    - index.md (overview + links to sections)
+    - section files per the skill spec
 
     Follow analysis-principles.md: completeness, machine-readable, link to source, no commentary.
 ```
@@ -57,9 +66,9 @@ Task(subagent_type="general-purpose")
 After application layers complete, dispatch testing specialists in parallel:
 
 ```
-- analyzing-unit-tests → unit-tests.md
-- analyzing-integration-tests → integration-tests.md
-- analyzing-e2e-tests → e2e-tests.md
+- analyzing-unit-tests → unit-tests/ folder
+- analyzing-integration-tests → integration-tests/ folder
+- analyzing-e2e-tests → e2e-tests/ folder
 ```
 
 Testing analysis can reference application layer docs for coverage mapping.
@@ -75,14 +84,13 @@ For each analyzed layer:
     prompt: |
       Use unwind:verifying-layer-documentation to verify the [layer] layer.
 
-      Compare docs/unwind/layers/[layer].md against source files.
+      Read docs/unwind/layers/[layer]/index.md and all linked section files.
+      Compare against source files.
 
       Produce:
-      1. Verification report (accuracy issues, missing items)
-      2. Augmented documentation sections
+      1. Verification report at docs/unwind/layers/[layer]/verification.md
+      2. Fixes applied to section files as needed
       3. Rebuild readiness score (1-10)
-
-      Apply fixes directly to docs/unwind/layers/[layer].md
 ```
 
 **Verification agents run in parallel** - no dependencies between layer verifications.
@@ -116,6 +124,6 @@ Execution:
 
 ## Refresh Mode
 
-If layer docs exist:
-1. Pass existing doc as context
-2. Subagents add `## Changes Since Last Review`
+If layer folders exist:
+1. Pass existing index.md and section files as context
+2. Subagents add `## Changes Since Last Review` to index.md

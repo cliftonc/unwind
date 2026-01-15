@@ -11,7 +11,7 @@ Transform all layer analysis documents into:
 1. **CODEBASE.md** - Unified documentation for understanding
 2. **REBUILD-PLAN.md** - Phased migration/rebuild strategy with validation checkpoints
 
-**Requires:** `docs/unwind/layers/*.md` from layer specialists + verification reports
+**Requires:** `docs/unwind/layers/*/index.md` from layer specialists + verification reports
 **Produces:**
 - `docs/unwind/CODEBASE.md` - Reference documentation
 - `docs/unwind/REBUILD-PLAN.md` - Actionable rebuild strategy
@@ -21,15 +21,15 @@ Transform all layer analysis documents into:
 Before using this skill:
 1. All detected layers have been analyzed
 2. Verification pass has completed
-3. Layer docs exist in `docs/unwind/layers/`
+3. Layer folders exist in `docs/unwind/layers/` with index.md + section files
 
 ## The Process
 
 ### Step 1: Inventory and Score
 
 Read all docs from `docs/unwind/layers/`:
-- Layer analysis files (`*.md`)
-- Verification reports (`*-verification.md`)
+- For each layer folder, read `index.md` and follow links to section files
+- Read verification reports (`verification.md` inside each layer folder)
 
 Extract:
 - Rebuild readiness scores per layer
@@ -444,19 +444,19 @@ npx playwright test
 
 ## Appendix: Layer Documentation
 
-- [Database Layer](layers/database.md) - Readiness: X/10
-- [Domain Model](layers/domain-model.md) - Readiness: X/10
-- [Service Layer](layers/service-layer.md) - Readiness: X/10
-- [API Layer](layers/api.md) - Readiness: X/10
-- [Frontend Layer](layers/frontend.md) - Readiness: X/10
+- [Database Layer](layers/database/index.md) - Readiness: X/10
+- [Domain Model](layers/domain-model/index.md) - Readiness: X/10
+- [Service Layer](layers/service-layer/index.md) - Readiness: X/10
+- [API Layer](layers/api/index.md) - Readiness: X/10
+- [Frontend Layer](layers/frontend/index.md) - Readiness: X/10
 
 ## Appendix: Verification Reports
 
-- [Database Verification](layers/database-verification.md)
-- [Service Verification](layers/service-layer-verification.md)
-- [API Verification](layers/api-verification.md)
-- [Domain Verification](layers/domain-model-verification.md)
-- [Frontend Verification](layers/frontend-verification.md)
+- [Database Verification](layers/database/verification.md)
+- [Service Verification](layers/service-layer/verification.md)
+- [API Verification](layers/api/verification.md)
+- [Domain Verification](layers/domain-model/verification.md)
+- [Frontend Verification](layers/frontend/verification.md)
 ```
 
 ---

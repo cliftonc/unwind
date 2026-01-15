@@ -5,28 +5,68 @@ description: Use when analyzing event-driven systems, message queues, async proc
 
 # Analyzing Messaging Layer
 
-**Output:** `docs/unwind/layers/messaging.md` (or `messaging/` directory if large)
+**Output:** `docs/unwind/layers/messaging/` (folder with index.md + section files)
 
-**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary.
+**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary, incremental writes.
 
-## Process
+## Output Structure
 
-1. **Find all messaging artifacts:**
-   - Event/message classes
-   - Publishers/producers
-   - Listeners/consumers
-   - Queue/topic configuration
+```
+docs/unwind/layers/messaging/
+├── index.md           # Topic overview, event flow diagram
+├── events.md          # Event definitions & schemas
+├── producers.md       # Message producers
+└── consumers.md       # Message consumers with retry config
+```
 
-2. **Document ALL events:**
-   - Include actual event class definitions
-   - Show serialization format (JSON schema, Avro, Protobuf)
-   - Link to source files
+For large codebases (10+ topics), split by topic:
+```
+docs/unwind/layers/messaging/
+├── index.md
+├── order-events.md
+├── user-events.md
+└── ...
+```
 
-3. **Document ALL producers and consumers:**
-   - Include actual implementation code
-   - Show retry/error handling
+## Process (Incremental Writes)
 
-4. **If large:** Split by topic/domain into `layers/messaging/{topic}.md`
+**Step 1: Setup**
+```bash
+mkdir -p docs/unwind/layers/messaging/
+```
+Write initial `index.md`:
+```markdown
+# Messaging Layer
+
+## Sections
+- [Events](events.md) - _pending_
+- [Producers](producers.md) - _pending_
+- [Consumers](consumers.md) - _pending_
+
+## Topics
+_Analysis in progress..._
+```
+
+**Step 2: Analyze and write events.md**
+1. Find all event/message classes
+2. Include JSON schemas or Avro/Protobuf definitions
+3. Write `events.md` immediately
+4. Update `index.md`
+
+**Step 3: Analyze and write producers.md**
+1. Find all publishers/producers
+2. Include actual implementation code
+3. Write `producers.md` immediately
+4. Update `index.md`
+
+**Step 4: Analyze and write consumers.md**
+1. Find all listeners/consumers
+2. Document retry/error handling, DLQ config
+3. Write `consumers.md` immediately
+4. Update `index.md`
+
+**Step 5: Finalize index.md**
+Add topic table and event flow diagram
 
 ## Output Format
 
@@ -167,4 +207,4 @@ graph LR
 
 ## Refresh Mode
 
-If `messaging.md` exists, compare and add `## Changes Since Last Review` section.
+If `docs/unwind/layers/messaging/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.

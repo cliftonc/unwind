@@ -5,45 +5,116 @@ description: Use when analyzing the database layer including schema, migrations,
 
 # Analyzing Database Layer
 
-**Output:** `docs/unwind/layers/database.md` (or `database/` directory if large)
+**Output:** `docs/unwind/layers/database/` (folder with index.md + section files)
 
-**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary.
+**Principles:** See `analysis-principles.md` - completeness, machine-readable, link to source, no commentary, incremental writes.
 
-## Process
+## Output Structure
 
-1. **Find all database artifacts:**
-   - Migration files (Flyway, Liquibase, Alembic, Prisma)
-   - Entity/model classes
-   - Repository/DAO classes
-   - Database configuration
+```
+docs/unwind/layers/database/
+├── index.md           # Overview, table count, links to sections
+├── schema.md          # Current DDL for all tables
+├── repositories.md    # Data access patterns, queries
+└── jsonb-schemas.md   # Complex field type definitions (if any JSONB/JSON columns)
+```
 
-2. **Extract schema:**
-   - Include actual DDL or migration SQL
-   - Document ALL tables, columns, indexes, constraints
-   - Use mermaid ERD for relationships
+For large codebases (20+ tables), split by domain:
+```
+docs/unwind/layers/database/
+├── index.md
+├── users-domain.md    # users, user_settings, user_roles tables
+├── orders-domain.md   # orders, order_items, shipments tables
+└── ...
+```
 
-3. **Document repositories:**
-   - List ALL repository classes with GitHub links
-   - Include method signatures
-   - Note custom queries (actual SQL/JPQL)
+## Process (Incremental Writes)
 
-4. **If large:** Split by domain into `layers/database/{domain}.md`
+**Step 1: Setup**
+```bash
+mkdir -p docs/unwind/layers/database/
+```
+Write initial `index.md`:
+```markdown
+# Database Layer
+
+## Sections
+- [Schema](schema.md) - _pending_
+- [Repositories](repositories.md) - _pending_
+- [JSONB Schemas](jsonb-schemas.md) - _pending_
+
+## Summary
+_Analysis in progress..._
+```
+
+**Step 2: Analyze and write schema.md**
+1. Find migration files (Flyway, Liquibase, Alembic, Prisma, Drizzle)
+2. Extract CURRENT schema state (not migration history)
+3. Document ALL tables, columns, indexes, constraints
+4. Write `schema.md` immediately
+5. Update `index.md` link to remove "_pending_"
+
+**Step 3: Analyze and write repositories.md**
+1. Find repository/DAO classes
+2. List ALL with GitHub links and method signatures
+3. Write `repositories.md` immediately
+4. Update `index.md`
+
+**Step 4: Analyze and write jsonb-schemas.md** (if applicable)
+1. Find JSONB/JSON columns
+2. Extract TypeScript interfaces or Zod schemas
+3. Write `jsonb-schemas.md` immediately
+4. Update `index.md`
+
+**Step 5: Finalize index.md**
+Update with final counts and summary
 
 ## Output Format
+
+### index.md
 
 ```markdown
 # Database Layer
 
-## Schema
+## Sections
+- [Schema](schema.md) - 12 tables, 4 indexes
+- [Repositories](repositories.md) - 8 repository classes
+- [JSONB Schemas](jsonb-schemas.md) - 3 complex field types
 
-### Tables
+## Migrations
 
-[List ALL tables]
+**Location:** `src/db/migrations/`
 
-#### users
+Current schema state (result of all migrations) is documented in [schema.md](schema.md).
+
+## Entity Relationships
+
+```mermaid
+erDiagram
+    users ||--o{ orders : places
+    orders ||--|{ order_items : contains
+    order_items }|--|| products : references
+```
+
+## Summary
+- **Tables:** 12
+- **Repositories:** 8
+- **JSONB columns:** 3
+
+## Unknowns
+- [List anything unclear]
+```
+
+### schema.md
+
+```markdown
+# Database Schema
+
+## Tables (12 total)
+
+### users [MUST]
 
 ```sql
--- From: migrations/V1__create_users.sql
 CREATE TABLE users (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -54,18 +125,20 @@ CREATE TABLE users (
 CREATE INDEX idx_users_email ON users(email);
 ```
 
-### Entity Relationships
+| Column | Type | Nullable | Default | Constraints |
+|--------|------|----------|---------|-------------|
+| id | BIGINT | NO | auto | PRIMARY KEY |
+| email | VARCHAR(255) | NO | - | UNIQUE |
 
-```mermaid
-erDiagram
-    users ||--o{ orders : places
-    orders ||--|{ order_items : contains
-    order_items }|--|| products : references
+[Continue for ALL tables...]
 ```
 
-## Repositories
+### repositories.md
 
-### UserRepository
+```markdown
+# Repositories
+
+## UserRepository
 
 [UserRepository.java](https://github.com/owner/repo/blob/main/src/repository/UserRepository.java)
 
@@ -79,17 +152,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 ```
 
 [Continue for ALL repositories...]
-
-## Migrations
-
-| Version | File | Description |
-|---------|------|-------------|
-| V1 | V1__initial.sql | Initial schema |
-| V2 | V2__add_orders.sql | Add orders table |
-
-## Unknowns
-
-- [List anything unclear]
 ```
 
 ## Additional Requirements
@@ -151,4 +213,4 @@ Document ALL indexes with:
 
 ## Refresh Mode
 
-If `database.md` exists, compare and add `## Changes Since Last Review` section.
+If `docs/unwind/layers/database/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.
