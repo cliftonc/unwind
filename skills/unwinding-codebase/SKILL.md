@@ -15,9 +15,10 @@ description: Use after discovering-architecture to orchestrate layer-by-layer an
 ### Step 1: Parse Architecture Document
 
 1. Read `docs/unwind/architecture.md`
-2. Extract YAML `layers` block
-3. Build dependency graph
-4. Skip layers with `status: not_detected`
+2. Extract `repository.link_format` for source linking
+3. Extract YAML `layers` block
+4. Build dependency graph
+5. Skip layers with `status: not_detected`
 
 ### Step 2: Execution Phases
 
@@ -42,6 +43,12 @@ Task(subagent_type="general-purpose")
 
     Entry points from architecture.md:
     [entry_points]
+
+    SOURCE LINKING - Use this format for all source references:
+    [link_format from architecture.md]
+
+    Replace {path}, {start}, {end} with actual values.
+    Example: [UserService.ts]([link_format with path=src/services/UserService.ts, start=45, end=67])
 
     IMPORTANT: Write incrementally to folder structure.
     1. Create docs/unwind/layers/[layer]/ directory first

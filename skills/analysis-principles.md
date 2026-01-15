@@ -39,19 +39,45 @@ erDiagram
 
 ## 3. Link to Source
 
-Reference source files with GitHub links where possible:
+**Use the `link_format` from `docs/unwind/architecture.md`** to create source links.
 
-**Format:** `[FileName](https://github.com/{owner}/{repo}/blob/{branch}/{path}#L{start}-L{end})`
+### Getting the Link Format
 
-**Example:**
-```
-[UserService.java](https://github.com/acme/api/blob/main/src/service/UserService.java#L45-L67)
+Read the `repository` section from `docs/unwind/architecture.md`:
+```yaml
+repository:
+  type: github
+  url: https://github.com/owner/repo
+  branch: main
+  link_format: https://github.com/owner/repo/blob/main/{path}#L{start}-L{end}
 ```
 
-For non-GitHub or local analysis, use file paths with line numbers:
+### Creating Links
+
+Replace placeholders in `link_format`:
+- `{path}` → file path from project root (e.g., `src/service/UserService.java`)
+- `{start}` → start line number
+- `{end}` → end line number
+
+**Example with GitHub repo:**
 ```
-src/service/UserService.java:45-67
+link_format: https://github.com/acme/api/blob/main/{path}#L{start}-L{end}
+
+Result: [UserService.java](https://github.com/acme/api/blob/main/src/service/UserService.java#L45-L67)
 ```
+
+**Example with local repo (no remote):**
+```
+link_format: {path}:{start}-{end}
+
+Result: src/service/UserService.java:45-67
+```
+
+### Important
+
+- **Always read `architecture.md` first** to get the actual link format
+- **Never hardcode** `owner/repo` - use the discovered values
+- If `architecture.md` doesn't exist yet, use local format: `path:line-line`
 
 ## 4. No Commentary
 

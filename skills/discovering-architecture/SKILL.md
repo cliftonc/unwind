@@ -89,6 +89,39 @@ Explore this codebase to identify its architectural layers and structure.
 
 Systematically explore the codebase and create an architecture document at `docs/unwind/architecture.md`.
 
+## Phase 0: Repository Information
+
+**CRITICAL:** Extract repository information FIRST for source linking.
+
+Run these commands to get git info:
+```bash
+git remote get-url origin 2>/dev/null
+git branch --show-current 2>/dev/null
+```
+
+Parse the remote URL:
+- SSH format: `git@github.com:owner/repo.git` → `https://github.com/owner/repo`
+- HTTPS format: `https://github.com/owner/repo.git` → `https://github.com/owner/repo`
+- GitLab/Bitbucket: Similar patterns
+
+If git info is available, set:
+```yaml
+repository:
+  type: github|gitlab|bitbucket|unknown
+  url: https://github.com/owner/repo
+  branch: main
+  link_format: https://github.com/owner/repo/blob/main/{path}#L{start}-L{end}
+```
+
+If git info is NOT available (not a git repo, no remote):
+```yaml
+repository:
+  type: local
+  url: null
+  branch: null
+  link_format: "{path}:{start}-{end}"
+```
+
 ## Phase 1: Project Identification
 
 Identify the technology stack by looking for:
@@ -152,6 +185,18 @@ Use this format:
 - **Project Root:** [path]
 - **Framework:** [detected framework]
 - **Language:** [primary language]
+
+## Repository Information
+
+```yaml
+repository:
+  type: github|gitlab|bitbucket|local
+  url: https://github.com/owner/repo  # or null if local
+  branch: main                         # or null if local
+  link_format: https://github.com/owner/repo/blob/main/{path}#L{start}-L{end}
+```
+
+**For all downstream agents:** Use `link_format` to create source links. Replace `{path}`, `{start}`, `{end}` with actual values.
 
 ## Layer Configuration
 
