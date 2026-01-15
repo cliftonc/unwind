@@ -191,6 +191,65 @@ graph TD
 - [List anything unclear]
 ```
 
+## Additional Requirements
+
+### Focus on WHAT, not HOW
+
+The goal is to enable rebuild in ANY framework. Prioritize documenting functionality over implementation.
+
+### MUST Document (Essential for Feature Parity)
+
+| Category | What to Document | Example |
+|----------|------------------|---------|
+| **User Flows** | What users can do, step by step | "User creates budget → selects calendar → adds positions → publishes" |
+| **Page Purposes** | What each page accomplishes | "BudgetViewPage: View, edit, compare budgets" |
+| **State Persistence** | What state survives refresh | "Auth token, selected org, theme preference" |
+| **Permission Gates** | What requires authorization | "Budget publish requires admin role" |
+| **API Interactions** | What data is fetched/mutated | "Page fetches /api/budgets on mount" |
+
+### SHOULD Document (Valuable Patterns)
+
+| Category | What to Document |
+|----------|------------------|
+| Component hierarchy | Parent-child relationships |
+| Route structure | URL patterns and nesting |
+| Error boundaries | How errors are caught and displayed |
+| Loading states | What users see during fetches |
+
+### DON'T Document (Tech-Specific)
+
+| Category | Why to Omit |
+|----------|-------------|
+| CSS class names | Framework-specific (Tailwind, etc.) |
+| React hook implementations | Can use different state management |
+| Component library usage | DaisyUI, MUI, etc. are choices |
+| Build configuration | Vite, Webpack are tools |
+
+### Page Documentation Format
+
+```markdown
+### BudgetViewPage [MUST]
+
+**Purpose:** View and edit budget allocations with comparison to snapshots
+
+**User Flow:**
+1. Select calendar and period filters
+2. View position-team allocation grid
+3. Edit allocations (if draft status)
+4. Compare to snapshot (optional)
+5. Publish budget (admin only)
+
+**Permissions:**
+- View: manager, admin, owner
+- Edit: admin, owner (draft only)
+- Publish: admin, owner
+
+**API Dependencies:**
+- GET /api/budgets/:id
+- PUT /api/budgets/:id
+- GET /api/snapshots (for comparison)
+```
+
 ## Refresh Mode
 
 If `frontend.md` exists, compare and add `## Changes Since Last Review` section.

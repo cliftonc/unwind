@@ -64,10 +64,33 @@ After application layers complete, dispatch testing specialists in parallel:
 
 Testing analysis can reference application layer docs for coverage mapping.
 
-### Step 5: Handoff
+### Step 5: Verification Phase
 
-When complete:
-> Layer analysis complete. Run `unwind:synthesizing-findings` to aggregate into CODEBASE.md.
+After all layer analysis completes, dispatch verification agents IN PARALLEL:
+
+```
+For each analyzed layer:
+  Task(subagent_type="general-purpose")
+    description: "Verify [layer] documentation"
+    prompt: |
+      Use unwind:verifying-layer-documentation to verify the [layer] layer.
+
+      Compare docs/unwind/layers/[layer].md against source files.
+
+      Produce:
+      1. Verification report (accuracy issues, missing items)
+      2. Augmented documentation sections
+      3. Rebuild readiness score (1-10)
+
+      Apply fixes directly to docs/unwind/layers/[layer].md
+```
+
+**Verification agents run in parallel** - no dependencies between layer verifications.
+
+### Step 6: Handoff
+
+When verification complete:
+> Layer analysis and verification complete. Run `unwind:synthesizing-findings` to aggregate into CODEBASE.md.
 
 ## Execution Example
 
@@ -88,7 +111,8 @@ Execution:
 4. Phase 4: `analyzing-api-layer` (messaging skipped)
 5. Phase 5: `analyzing-frontend-layer`
 6. Phase 6: `analyzing-unit-tests`, `analyzing-integration-tests`, `analyzing-e2e-tests` (parallel)
-7. Handoff to synthesis
+7. **Phase 7: Verification** - `verifying-layer-documentation` for all layers (parallel)
+8. Handoff to synthesis
 
 ## Refresh Mode
 

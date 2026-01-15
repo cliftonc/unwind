@@ -34,6 +34,13 @@ unwinding-codebase          → dispatches layer specialists
         ├── analyzing-integration-tests  → integration-tests.md
         └── analyzing-e2e-tests          → e2e-tests.md
         │
+verifying-layer-documentation → verification pass (parallel per layer)
+        │
+        ├── Compares each layer doc against source
+        ├── Identifies accuracy issues and gaps
+        ├── Applies fixes and augmentations
+        └── Assigns rebuild readiness scores
+        │
 synthesizing-findings       → CODEBASE.md
 ```
 
@@ -45,6 +52,7 @@ synthesizing-findings       → CODEBASE.md
 |-------|--------|
 | `discovering-architecture` | `architecture.md` |
 | `unwinding-codebase` | Orchestrates layer analysis |
+| `verifying-layer-documentation` | Verification reports, fixes applied |
 | `synthesizing-findings` | `CODEBASE.md` |
 
 ### Layer Specialists
@@ -73,11 +81,16 @@ docs/unwind/
 ├── architecture.md
 ├── layers/
 │   ├── database.md (or database/)
+│   ├── database-verification.md      # Verification report
 │   ├── domain-model.md
+│   ├── domain-model-verification.md
 │   ├── service-layer.md
+│   ├── service-layer-verification.md
 │   ├── api.md
+│   ├── api-verification.md
 │   ├── messaging.md
 │   ├── frontend.md
+│   ├── frontend-verification.md
 │   ├── unit-tests.md
 │   ├── integration-tests.md
 │   └── e2e-tests.md
@@ -91,7 +104,10 @@ Large layers split into subdirectories with index.
 1. `Use unwind:discovering-architecture`
 2. Review `docs/unwind/architecture.md`
 3. `Use unwind:unwinding-codebase`
-4. `Use unwind:synthesizing-findings`
+4. `Use unwind:verifying-layer-documentation` (runs parallel verification)
+5. `Use unwind:synthesizing-findings`
+
+**Note:** Step 4 (verification) is integrated into `unwinding-codebase` but can also be run independently to re-verify existing documentation.
 
 ## Refresh Mode
 

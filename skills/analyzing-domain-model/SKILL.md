@@ -122,6 +122,69 @@ Source: [Order.java:78-95](https://github.com/owner/repo/blob/main/src/domain/Or
 - [List anything unclear]
 ```
 
+## Additional Requirements
+
+### Validation Constraint Tables [MUST]
+
+For each validation schema, create a constraint table:
+
+```markdown
+### Position Validation [MUST]
+
+| Field | Type | Min | Max | Required | Default | Notes |
+|-------|------|-----|-----|----------|---------|-------|
+| name | string | 1 | 200 | yes | - | |
+| fteBasis | number | 0 | 2 | yes | 1.0 | Full-time equivalent |
+| capexPerc | number | 0 | 100 | yes | 0 | Percentage |
+| allocation | number | 0 | 100 | yes | 100 | Percentage |
+
+**Source:** `src/validation/positions.ts`
+```
+
+### Enum Value Documentation [MUST]
+
+Document ALL enum/union type values:
+
+```markdown
+### Position Type Enum [MUST]
+
+```typescript
+type PositionType = 'standard' | 'acting' | 'interim' | 'vacant'
+```
+
+| Value | Description |
+|-------|-------------|
+| standard | Permanent position |
+| acting | Temporary assignment |
+| interim | Short-term coverage |
+| vacant | Unfilled position |
+```
+
+### Permission Matrix [MUST]
+
+Document role-permission mappings:
+
+```markdown
+### Permission Matrix [MUST]
+
+| Resource | owner | admin | manager | member |
+|----------|-------|-------|---------|--------|
+| Organisation | manage | read | read | read |
+| Employee | manage | manage | manage | read |
+| Budget | manage | manage | read | - |
+| Rate | manage | manage | read | - |
+```
+
+### Self-Reference Rules [MUST]
+
+Document any self-referential constraints:
+```markdown
+### Relationship Constraints [MUST]
+
+- Position cannot report to itself: `fromPositionId !== toPositionId`
+- End date must be after start date: `endDate > startDate`
+```
+
 ## Refresh Mode
 
 If `domain-model.md` exists, compare and add `## Changes Since Last Review` section.

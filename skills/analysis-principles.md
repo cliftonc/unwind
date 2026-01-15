@@ -133,3 +133,117 @@ For data structures, include actual definitions:
 **API:** Include OpenAPI/GraphQL schema snippets
 **Events:** Include event schema (JSON Schema, Avro, Protobuf)
 **DTOs:** Include actual class/type definitions
+
+## 9. Rebuild Categorization
+
+The target audience for Unwind documentation is an AI agent that will rebuild the system. Tag each documented item for rebuild priority:
+
+| Tag | Meaning | Examples |
+|-----|---------|----------|
+| **MUST** | Essential for comparable functionality - without this, the rebuild fails | Core calculation formulas, entity relationships, business validation rules, external API contracts |
+| **SHOULD** | Valuable patterns that inform quality but could be reimplemented differently | API endpoint structure, caching strategies, error handling patterns |
+| **DON'T** | Implementation details tied to current tech stack - omit from rebuild | ORM-specific syntax, CSS framework classes, build tool configuration |
+
+**Example tagging:**
+```markdown
+### Rate Calculation [MUST]
+```typescript
+// snapshot-operations.ts:186
+cost = periods[rate.interval] * rate.rate * fteBasis * allocation * holidayPercentage
+```
+
+### Drizzle ORM Query Pattern [DON'T]
+```typescript
+// Tech-specific - omit from rebuild docs
+db.select().from(users).where(eq(users.org, orgId))
+```
+```
+
+## 10. Exact Counts Required
+
+Never use approximations. Vague counts prevent verification and suggest incomplete analysis.
+
+**Don't:**
+```markdown
+The system has 30+ tables including users, orders, products...
+```
+
+**Do:**
+```markdown
+The system has 42 tables:
+1. users
+2. orders
+3. products
+[... all 42 listed]
+```
+
+**Why this matters:** An AI rebuild agent cannot verify completeness against "30+" but can verify against "42".
+
+## 11. Complex Field Schemas
+
+For JSONB, JSON, or any complex/nested field types, document the internal structure:
+
+**Process:**
+1. Search for TypeScript interfaces or type definitions
+2. Search for Zod/Yup validation schemas that define the structure
+3. Examine actual usage in code to infer structure
+4. If structure is implicit, document from usage patterns
+
+**Example:**
+```markdown
+### snapshotCalculations.calculationData [MUST]
+
+**Type:** JSONB
+
+**Structure:**
+```typescript
+{
+  periodIntervals: number;    // From periods[rate.interval]
+  intervalType: string;       // 'hour' | 'day' | 'week' | 'month'
+  intervalRate: number;       // Rate value used
+  rateSource: string;         // 'specific' | 'supplier-default' | 'missing'
+  fteBasis: number;           // 0-2 range
+  allocation: number;         // 0-100 percentage
+  total: number;              // Calculated cost
+  capexPercentage: number;    // 0-100
+  totalCapex: number;         // total * capexPercentage / 100
+  totalOpex: number;          // total - totalCapex
+}
+```
+
+**Source:** Inferred from `snapshot-operations.ts:180-195`
+```
+
+## 12. Hardcoded Constants
+
+Document all magic numbers and hardcoded values that affect business logic:
+
+**Example:**
+```markdown
+### Constants [MUST]
+
+| Constant | Value | Location | Usage |
+|----------|-------|----------|-------|
+| hoursPerDay | 8 | builder.ts:185 | Hours calculation assumes 8-hour workday |
+| daysInYear | 365 | builder.ts:208 | Yearly rate proration |
+| weekDivisor | 5 | builder.ts:201 | Weeks = Math.ceil(workingDays / 5) |
+```
+
+## 13. Edge Cases and Conditional Logic
+
+Document where behavior varies based on conditions:
+
+**Example:**
+```markdown
+### Rate Interval Edge Cases [MUST]
+
+| Interval | Formula | Note |
+|----------|---------|------|
+| hours | workingDays * 8 * rate * fte * allocation | Uses hoursPerDay constant |
+| days | workingDays * rate * fte * allocation | Standard calculation |
+| weeks | Math.ceil(workingDays/5) * rate * fte * allocation | Rounds up partial weeks |
+| months | rate * fte * allocation | **NO period multiplier** |
+| years | (workingDays/365) * rate * fte * allocation | Prorates by working days |
+
+**Source:** `builder.ts:193-215`
+```

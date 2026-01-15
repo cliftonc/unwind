@@ -92,6 +92,63 @@ public interface UserRepository extends JpaRepository<User, Long> {
 - [List anything unclear]
 ```
 
+## Additional Requirements
+
+### Field-Level Documentation [MUST]
+
+For EVERY table, document ALL of the following:
+- Column name and database type (VARCHAR, INTEGER, JSONB, etc.)
+- NOT NULL constraints
+- DEFAULT values
+- UNIQUE constraints
+- Foreign key relationships with ON DELETE behavior (CASCADE, SET NULL, RESTRICT)
+
+**Example:**
+```markdown
+### users table [MUST]
+
+| Column | Type | Nullable | Default | Constraints |
+|--------|------|----------|---------|-------------|
+| id | SERIAL | NO | auto | PRIMARY KEY |
+| email | VARCHAR(255) | NO | - | UNIQUE |
+| organisation | INTEGER | NO | - | FK → organisation.id ON DELETE CASCADE |
+| created_at | TIMESTAMP | NO | NOW() | - |
+```
+
+### JSONB Schema Extraction [MUST]
+
+For every JSONB/JSON column:
+1. Search for TypeScript interfaces that type this field
+2. Search for Zod schemas that validate it
+3. If no explicit type, infer from usage in code
+4. Document the complete nested structure
+
+**Example:**
+```markdown
+### calculationData (JSONB) [MUST]
+
+**Source:** Inferred from `snapshot-operations.ts:180-195`
+
+```typescript
+{
+  periodIntervals: number;
+  intervalType: 'hour' | 'day' | 'week' | 'month';
+  total: number;
+  capexPercentage: number;  // 0-100
+  totalCapex: number;
+  totalOpex: number;
+}
+```
+```
+
+### Index Documentation [SHOULD]
+
+Document ALL indexes with:
+- Index name
+- Columns covered
+- Type (btree, gin, partial)
+- Rationale (if apparent from naming or usage)
+
 ## Refresh Mode
 
 If `database.md` exists, compare and add `## Changes Since Last Review` section.

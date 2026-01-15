@@ -147,6 +147,61 @@ graph TD
 - [List anything unclear]
 ```
 
+## Additional Requirements
+
+### Formula Documentation [MUST]
+
+For every calculation or business formula:
+
+1. **Document with exact source reference:**
+```markdown
+### Cost Calculation [MUST]
+
+**Source:** `snapshot-operations.ts:186`
+
+```typescript
+total = periods[rate.interval] * rate.rate * fteBasis * allocation * holidayPercentage
+```
+```
+
+2. **Document ALL edge cases and conditional logic:**
+```markdown
+### Rate Interval Edge Cases [MUST]
+
+| Interval | Formula | Note |
+|----------|---------|------|
+| hours | workingDays * 8 * rate * fte * allocation | 8 hours/day hardcoded |
+| days | workingDays * rate * fte * allocation | Standard |
+| weeks | ceil(workingDays/5) * rate * fte * allocation | Rounds up |
+| months | rate * fte * allocation | **NO period multiplier** |
+| years | (workingDays/365) * rate * fte * allocation | Prorated |
+```
+
+3. **Document hardcoded constants:**
+```markdown
+### Constants [MUST]
+
+| Constant | Value | Location |
+|----------|-------|----------|
+| hoursPerDay | 8 | builder.ts:185 |
+| daysInYear | 365 | builder.ts:208 |
+```
+
+### Fallback/Resolution Logic [MUST]
+
+Document any fallback chains or resolution hierarchies:
+```markdown
+### Rate Resolution Chain [MUST]
+
+1. **Primary:** supplier + employmentType + roleLevel + calendar + branch
+2. **Fallback:** supplier + calendar + branch (null employmentType/roleLevel)
+3. **Missing:** Logged to missingRates array, uses 0
+```
+
+### Transaction Boundaries [SHOULD]
+
+Note where transactions begin/end and any batch processing patterns.
+
 ## Refresh Mode
 
 If `service-layer.md` exists, compare and add `## Changes Since Last Review` section.

@@ -147,6 +147,153 @@ public class GlobalExceptionHandler {
 - [List anything unclear]
 ```
 
+## Additional Requirements
+
+### API Specification Discovery [CRITICAL - MUST PRESERVE]
+
+Search for existing API specifications - these define external contracts and MUST be used AS-IS in any migration to maintain compatibility.
+
+**Search for these file patterns:**
+
+| Spec Type | Common Locations | File Patterns |
+|-----------|------------------|---------------|
+| OpenAPI/Swagger | `docs/`, `api/`, root | `openapi.yaml`, `openapi.json`, `swagger.yaml`, `swagger.json`, `api.yaml` |
+| AsyncAPI | `docs/`, `api/`, root | `asyncapi.yaml`, `asyncapi.json` |
+| TSRest | `src/contracts/`, `src/api/` | `contract.ts`, `*Contract.ts`, `*.contract.ts` |
+| tRPC | `src/server/`, `src/trpc/` | `router.ts`, `*.router.ts` |
+| GraphQL | `src/schema/`, `src/graphql/` | `schema.graphql`, `*.graphql`, `typeDefs.ts` |
+| Protobuf | `proto/`, `src/proto/` | `*.proto` |
+| JSON Schema | `schemas/`, `src/schemas/` | `*.schema.json` |
+
+**Process:**
+1. Search for all spec files using glob patterns
+2. Include COMPLETE spec files in documentation (not summaries)
+3. Mark as `[CRITICAL - EXTERNAL CONTRACT]`
+4. Note any generated client code that depends on specs
+
+**Output Format:**
+
+```markdown
+## API Specifications [CRITICAL - EXTERNAL CONTRACT]
+
+### OpenAPI Specification
+
+**Location:** `docs/openapi.yaml`
+**Version:** 3.0.0
+**Endpoints Defined:** 45
+
+```yaml
+# INCLUDE COMPLETE SPEC - DO NOT SUMMARIZE
+openapi: 3.0.0
+info:
+  title: MyService API
+  version: 2.1.0
+paths:
+  /api/v1/users:
+    ...
+[FULL SPEC HERE]
+```
+
+### TSRest Contract
+
+**Location:** `src/contracts/api.contract.ts`
+
+```typescript
+// INCLUDE COMPLETE CONTRACT
+import { initContract } from '@ts-rest/core';
+
+const c = initContract();
+
+export const apiContract = c.router({
+  users: {
+    create: {
+      method: 'POST',
+      path: '/api/users',
+      ...
+    }
+  }
+});
+```
+
+### AsyncAPI (Event Contracts)
+
+**Location:** `docs/asyncapi.yaml`
+
+```yaml
+# INCLUDE COMPLETE SPEC
+asyncapi: 2.6.0
+info:
+  title: MyService Events
+channels:
+  user.created:
+    ...
+```
+```
+
+**Why This Matters:**
+- External clients depend on these contracts
+- Breaking changes cause integration failures
+- Rebuild MUST maintain exact contract compatibility
+- These specs are the source of truth for API shape
+
+### Complete Route Inventory [MUST]
+
+List ALL route files with exact count:
+
+```markdown
+## Route Inventory
+
+**Total:** 43 route modules
+
+| # | File | Base Path | Endpoints |
+|---|------|-----------|-----------|
+| 1 | auth.ts | /api/auth | 8 |
+| 2 | users.ts | /api/users | 5 |
+| ... | ... | ... | ... |
+```
+
+### Missing Documentation Tracking
+
+If a route file exists but is not fully documented, note it:
+
+```markdown
+## Documentation Gaps
+
+| Route File | Status | Reason |
+|------------|--------|--------|
+| onyx.ts | NOT DOCUMENTED | Admin/debug routes |
+| playground.ts | NOT DOCUMENTED | Development only |
+```
+
+### External API Contracts [MUST]
+
+For any external integrations, document the contract:
+
+```markdown
+### GitHub Integration [MUST]
+
+**Endpoints Consumed:**
+- GET /user/installations
+- GET /orgs/:org/teams
+- POST /app/installations/:id/access_tokens
+
+**Webhook Events:**
+- installation.created
+- installation.deleted
+```
+
+### Permission Documentation [MUST]
+
+For each endpoint, document required permissions:
+
+```markdown
+| Endpoint | Method | Auth | Permission |
+|----------|--------|------|------------|
+| /api/budgets | GET | Required | budget:read |
+| /api/budgets | POST | Required | budget:create |
+| /api/budgets/:id | DELETE | Required | budget:delete (admin) |
+```
+
 ## Refresh Mode
 
 If `api.md` exists, compare and add `## Changes Since Last Review` section.
