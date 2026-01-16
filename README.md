@@ -20,7 +20,7 @@ Restart Claude Code after installation.
 
 ### Use
 ```
-1. Use unwind:discovering-architecture
+1. Use unwind:start
 2. Review docs/unwind/architecture.md
 3. Use unwind:unwinding-codebase
 4. Use unwind:synthesizing-findings
@@ -51,7 +51,7 @@ Restart Claude Code after installation.
 │                                                                              │
 │  PHASE 1: DISCOVERY                                                          │
 │  ┌──────────────────────────┐                                               │
-│  │ discovering-architecture │ ──► architecture.md                           │
+│  │         start            │ ──► architecture.md                           │
 │  └────────────┬─────────────┘     (layers, entry points, repo info)         │
 │               │                                                              │
 │               ▼                                                              │
@@ -152,7 +152,7 @@ All analysis follows these principles (see `skills/analysis-principles.md`):
 
 | Skill | Purpose | Output |
 |-------|---------|--------|
-| `discovering-architecture` | Initial codebase exploration | `architecture.md` |
+| `start` | Initial codebase exploration | `architecture.md` |
 | `unwinding-codebase` | Orchestrates all phases | Dispatches specialists |
 | `verifying-layer-documentation` | Detects gaps in docs | `gaps.md` per layer |
 | `completing-layer-documentation` | Fixes all gaps | Updated layer files |

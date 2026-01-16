@@ -24,7 +24,7 @@ See `analysis-principles.md`:
 ## Workflow
 
 ```
-discovering-architecture     → architecture.md (+ repo info for linking)
+start     → architecture.md (+ repo info for linking)
         │
 unwinding-codebase          → dispatches layer specialists
         │
@@ -57,7 +57,7 @@ synthesizing-findings       → CODEBASE.md + REBUILD-PLAN.md
 
 | Skill | Output |
 |-------|--------|
-| `discovering-architecture` | `architecture.md` |
+| `start` | `architecture.md` |
 | `unwinding-codebase` | Orchestrates layer analysis |
 | `verifying-layer-documentation` | `gaps.md` per layer (work list) |
 | `completing-layer-documentation` | Fills gaps, deletes gaps.md |
@@ -115,7 +115,7 @@ Each layer is a folder with `index.md` + section files for incremental writes.
 
 ## Quick Start
 
-1. `Use unwind:discovering-architecture`
+1. `Use unwind:start`
 2. Review `docs/unwind/architecture.md`
 3. `Use unwind:unwinding-codebase`
 4. `Use unwind:verifying-layer-documentation` (runs parallel verification)

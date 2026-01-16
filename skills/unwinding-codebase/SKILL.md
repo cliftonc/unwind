@@ -1,6 +1,6 @@
 ---
 name: unwinding-codebase
-description: Use after discovering-architecture to orchestrate layer-by-layer analysis using specialist subagents
+description: Use after unwind:start to orchestrate layer-by-layer analysis using specialist subagents
 allowed-tools:
   - Read
   - Grep

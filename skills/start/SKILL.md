@@ -1,5 +1,5 @@
 ---
-name: discovering-architecture
+name: start
 description: Use when starting reverse engineering on an unfamiliar codebase to identify layers, patterns, and structure before detailed analysis
 allowed-tools:
   - Read
