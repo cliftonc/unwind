@@ -23,14 +23,13 @@ Restart Claude Code after installation.
 1. Use unwind:discovering-architecture
 2. Review docs/unwind/architecture.md
 3. Use unwind:unwinding-codebase
-4. Use unwind:verifying-layer-documentation
-5. Use unwind:synthesizing-findings
+4. Use unwind:synthesizing-findings
 ```
 
 **Output:**
 - `docs/unwind/REBUILD-PLAN.md` - Phased migration strategy with validation checkpoints
 - `docs/unwind/CODEBASE.md` - Reference documentation
-- `docs/unwind/layers/*.md` - Detailed layer analysis
+- `docs/unwind/layers/*/` - Detailed layer analysis (folder per layer)
 
 ---
 
@@ -50,38 +49,47 @@ Restart Claude Code after installation.
 │                              UNWIND WORKFLOW                                 │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
+│  PHASE 1: DISCOVERY                                                          │
 │  ┌──────────────────────────┐                                               │
-│  │ discovering-architecture │ ──────► architecture.md                       │
-│  └────────────┬─────────────┘         (layers, entry points, tech stack)    │
+│  │ discovering-architecture │ ──► architecture.md                           │
+│  └────────────┬─────────────┘     (layers, entry points, repo info)         │
 │               │                                                              │
 │               ▼                                                              │
+│  PHASE 2: LAYER ANALYSIS                                                     │
 │  ┌──────────────────────────┐                                               │
-│  │   unwinding-codebase     │ ──────► Dispatches layer specialists          │
+│  │   unwinding-codebase     │ ──► Dispatches layer specialists              │
 │  └────────────┬─────────────┘                                               │
 │               │                                                              │
 │       ┌───────┴───────┬───────────┬───────────┬───────────┐                │
 │       ▼               ▼           ▼           ▼           ▼                │
 │  ┌─────────┐    ┌──────────┐ ┌─────────┐ ┌─────────┐ ┌──────────┐         │
-│  │Database │    │ Domain   │ │ Service │ │   API   │ │ Frontend │         │
-│  │ Layer   │    │  Model   │ │  Layer  │ │  Layer  │ │  Layer   │         │
+│  │database/│    │ domain-  │ │service- │ │  api/   │ │frontend/ │         │
+│  │         │    │ model/   │ │ layer/  │ │         │ │          │         │
 │  └────┬────┘    └────┬─────┘ └────┬────┘ └────┬────┘ └────┬─────┘         │
 │       │              │            │           │           │                 │
 │       └──────────────┴────────────┴───────────┴───────────┘                │
 │                              │                                              │
 │                              ▼                                              │
+│  PHASE 3: GAP DETECTION                                                      │
 │  ┌───────────────────────────────────────────────────────────┐             │
 │  │           verifying-layer-documentation                    │             │
-│  │   (Parallel verification agents compare docs to source)    │             │
+│  │   (Parallel agents compare docs to source)                 │             │
 │  └─────────────────────────────┬─────────────────────────────┘             │
 │                                │                                            │
-│       ┌────────────────────────┼────────────────────────┐                  │
-│       ▼                        ▼                        ▼                  │
-│  ┌──────────┐           ┌──────────┐            ┌──────────┐              │
-│  │ Accuracy │           │  Gaps    │            │ Rebuild  │              │
-│  │  Issues  │           │ Detected │            │ Scores   │              │
-│  └──────────┘           └──────────┘            └──────────┘              │
+│                                ▼                                            │
+│                         ┌──────────┐                                        │
+│                         │ gaps.md  │  (per layer - work list only)          │
+│                         └────┬─────┘                                        │
+│                              │                                              │
+│                              ▼                                              │
+│  PHASE 4: GAP COMPLETION                                                     │
+│  ┌───────────────────────────────────────────────────────────┐             │
+│  │           completing-layer-documentation                   │             │
+│  │   (Parallel agents fix all gaps, delete gaps.md)          │             │
+│  └─────────────────────────────┬─────────────────────────────┘             │
 │                                │                                            │
 │                                ▼                                            │
+│  PHASE 5: SYNTHESIS                                                          │
 │  ┌──────────────────────────────────────────────────────────┐              │
 │  │              synthesizing-findings                        │              │
 │  │   (Generates REBUILD-PLAN.md + CODEBASE.md)              │              │
@@ -97,6 +105,33 @@ Restart Claude Code after installation.
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
+## Phases Explained
+
+### Phase 1: Discovery
+Extracts repository info (for GitHub links), detects layers, identifies tech stack.
+
+### Phase 2: Layer Analysis
+Dispatches specialist agents in dependency order:
+1. Database (no dependencies)
+2. Domain Model (needs database)
+3. Service Layer (needs domain)
+4. API + Messaging (parallel, need services)
+5. Frontend (needs API)
+6. Tests (parallel, no layer dependencies)
+
+Each layer writes to a folder with incremental files to avoid token limits.
+
+### Phase 3: Gap Detection
+Compares documentation against source code. Outputs ONLY what's missing to `gaps.md` - no scores, no "what's correct" text.
+
+### Phase 4: Gap Completion
+Reads `gaps.md` work lists and adds all missing documentation. Deletes `gaps.md` when complete.
+
+### Phase 5: Synthesis
+Aggregates all layer documentation into final deliverables.
+
+---
+
 ## Principles
 
 All analysis follows these principles (see `skills/analysis-principles.md`):
@@ -105,12 +140,11 @@ All analysis follows these principles (see `skills/analysis-principles.md`):
 |-----------|-------------|
 | **Completeness** | Document ALL items - exact counts, not "30+" |
 | **Machine-readable** | Actual code, SQL, mermaid - not prose summaries |
-| **Link to source** | File paths with line numbers for verification |
+| **Link to source** | Uses repo info for GitHub links, or local paths |
 | **No commentary** | Facts only, no speculation or recommendations |
 | **Rebuild categorization** | Tag items as MUST/SHOULD/DON'T keep |
-| **JSONB schemas** | Extract and document complex field structures |
-| **Hardcoded constants** | List all magic numbers affecting business logic |
-| **Edge cases** | Document conditional behavior variations |
+| **Incremental writes** | Write each section immediately, don't buffer |
+| **Migrations: current state** | Document final schema, not migration history |
 
 ## Skills
 
@@ -119,20 +153,21 @@ All analysis follows these principles (see `skills/analysis-principles.md`):
 | Skill | Purpose | Output |
 |-------|---------|--------|
 | `discovering-architecture` | Initial codebase exploration | `architecture.md` |
-| `unwinding-codebase` | Orchestrates layer analysis | Dispatches specialists |
-| `verifying-layer-documentation` | Second-pass verification | `*-verification.md`, fixes |
+| `unwinding-codebase` | Orchestrates all phases | Dispatches specialists |
+| `verifying-layer-documentation` | Detects gaps in docs | `gaps.md` per layer |
+| `completing-layer-documentation` | Fixes all gaps | Updated layer files |
 | `synthesizing-findings` | Generates rebuild plan | `REBUILD-PLAN.md`, `CODEBASE.md` |
 
 ### Layer Specialists
 
 | Skill | Analyzes | Key Requirements |
 |-------|----------|------------------|
-| `analyzing-database-layer` | Schema, migrations, repositories | All tables, JSONB schemas, indexes |
-| `analyzing-domain-model` | Entities, validation, business rules | Constraint tables, permission matrix |
-| `analyzing-service-layer` | Services, calculations, integrations | Formulas with source refs, edge cases |
+| `analyzing-database-layer` | Schema, repositories | All tables, JSONB schemas, indexes |
+| `analyzing-domain-model` | Entities, validation | Constraint tables, permission matrix |
+| `analyzing-service-layer` | Services, calculations | Formulas with source refs, edge cases |
 | `analyzing-api-layer` | Endpoints, auth, contracts | OpenAPI/TSRest specs, route inventory |
-| `analyzing-messaging-layer` | Events, queues, consumers | AsyncAPI specs, event schemas |
-| `analyzing-frontend-layer` | Components, state, routing | User flows (WHAT), not implementation (HOW) |
+| `analyzing-messaging-layer` | Events, queues | AsyncAPI specs, event schemas |
+| `analyzing-frontend-layer` | Components, state | User flows (WHAT), not implementation (HOW) |
 
 ### Testing Specialists
 
@@ -146,27 +181,36 @@ All analysis follows these principles (see `skills/analysis-principles.md`):
 
 ```
 docs/unwind/
-├── architecture.md                    # Layer detection, tech stack
+├── architecture.md                    # Layer detection, tech stack, repo info
 ├── layers/
-│   ├── database.md                    # All tables, fields, relationships
-│   ├── database-verification.md       # Verification report
-│   ├── domain-model.md                # Entities, validation rules
-│   ├── domain-model-verification.md
-│   ├── service-layer.md               # Services, calculations, formulas
-│   ├── service-layer-verification.md
-│   ├── api.md                         # Endpoints, OpenAPI specs
-│   ├── api-verification.md
-│   ├── messaging.md                   # Events, AsyncAPI specs
-│   ├── frontend.md                    # User flows, state requirements
-│   ├── frontend-verification.md
-│   ├── unit-tests.md
-│   ├── integration-tests.md
-│   └── e2e-tests.md
+│   ├── database/
+│   │   ├── index.md                   # Overview, links to sections
+│   │   ├── schema.md                  # All tables, fields
+│   │   ├── repositories.md            # Data access patterns
+│   │   └── jsonb-schemas.md           # Complex field structures
+│   ├── domain-model/
+│   │   ├── index.md
+│   │   ├── entities.md
+│   │   ├── enums.md
+│   │   └── validation.md
+│   ├── service-layer/
+│   │   ├── index.md
+│   │   ├── services.md
+│   │   ├── formulas.md                # Business calculations [MUST]
+│   │   └── dtos.md
+│   ├── api/
+│   │   ├── index.md
+│   │   ├── endpoints.md
+│   │   ├── contracts.md               # OpenAPI/TSRest [CRITICAL]
+│   │   └── auth.md
+│   ├── frontend/
+│   │   ├── index.md
+│   │   ├── pages.md                   # User flows, not React code
+│   │   └── state.md
+│   └── [test layers...]
 ├── REBUILD-PLAN.md                    # Phased migration strategy
 └── CODEBASE.md                        # Reference documentation
 ```
-
-Large layers split into subdirectories with index.
 
 ## Rebuild Plan
 
@@ -186,18 +230,6 @@ Each documented item is tagged:
 | **MUST** | Essential for comparable functionality | Implement exactly |
 | **SHOULD** | Valuable but implementation-flexible | Preserve intent |
 | **DON'T** | Tech-stack specific | Omit from rebuild |
-
-## Rebuild Readiness Scores
-
-Each layer receives a readiness score (1-10):
-
-| Score | Meaning |
-|-------|---------|
-| 9-10 | Ready for AI rebuild - comprehensive, accurate |
-| 7-8 | Mostly ready - minor gaps, no blocking issues |
-| 5-6 | Significant gaps - rebuild possible with assumptions |
-| 3-4 | Major gaps - rebuild would miss key functionality |
-| 1-2 | Not ready - documentation insufficient |
 
 ## License
 
