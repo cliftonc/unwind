@@ -177,7 +177,12 @@ Identify aspects spanning multiple layers:
 
 ## Phase 5: Write Architecture Document
 
-Create `docs/unwind/architecture.md` (create the directory if needed).
+**FIRST** create the output directory:
+```bash
+mkdir -p docs/unwind
+```
+
+Then create `docs/unwind/architecture.md`.
 
 Use this format:
 
