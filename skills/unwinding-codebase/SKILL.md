@@ -1,6 +1,18 @@
 ---
 name: unwinding-codebase
 description: Use after unwind:start to orchestrate layer-by-layer analysis using specialist subagents
+uses-skills:
+  - unwind:analyzing-database-layer
+  - unwind:analyzing-domain-model
+  - unwind:analyzing-service-layer
+  - unwind:analyzing-api-layer
+  - unwind:analyzing-messaging-layer
+  - unwind:analyzing-frontend-layer
+  - unwind:analyzing-unit-tests
+  - unwind:analyzing-integration-tests
+  - unwind:analyzing-e2e-tests
+  - unwind:verifying-layer-documentation
+  - unwind:completing-layer-documentation
 allowed-tools:
   - Read
   - Grep
