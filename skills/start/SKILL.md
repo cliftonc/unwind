@@ -27,9 +27,32 @@ Dispatch a subagent to systematically explore a codebase and identify its archit
 
 ## The Process
 
-### Step 1: Check for Existing Documentation
+### Step 1: Gather Repository Information
 
-Before dispatching the subagent, check if `docs/unwind/architecture.md` exists:
+**Run these commands FIRST** to get git info for source linking:
+
+```bash
+git remote get-url origin 2>/dev/null
+git branch --show-current 2>/dev/null
+```
+
+Parse the remote URL:
+- SSH format: `git@github.com:owner/repo.git` → `https://github.com/owner/repo`
+- HTTPS format: `https://github.com/owner/repo.git` → `https://github.com/owner/repo`
+- If no remote: use `local` type with null URL
+
+Build the repository info block:
+```yaml
+repository:
+  type: github|gitlab|bitbucket|local
+  url: https://github.com/owner/repo  # or null if local
+  branch: main                         # or null if local
+  link_format: https://github.com/owner/repo/blob/main/{path}#L{start}-L{end}
+```
+
+### Step 2: Check for Existing Documentation
+
+Check if `docs/unwind/architecture.md` exists:
 
 ```
 Glob: docs/unwind/architecture.md
@@ -38,19 +61,25 @@ Glob: docs/unwind/architecture.md
 - If exists: Pass to subagent as "previous analysis" for refresh mode
 - If not: Fresh discovery
 
-### Step 2: Dispatch Discovery Subagent
+### Step 3: Dispatch Discovery Subagent
 
-Dispatch an **Explore** subagent for fast codebase analysis. Note: Explore cannot write files, so you will write the output in Step 3.
+Dispatch an **Explore** subagent for fast codebase analysis. Note: Explore cannot write files, so you will write the output in Step 4.
+
+**Include the repository info from Step 1 in the prompt:**
 
 ```
 Task(subagent_type="Explore")
   description: "Discover codebase architecture"
-  prompt: [See Subagent Prompt below - but OMIT Phase 5 (writing)]
+  prompt: |
+    [See Subagent Prompt below]
+
+    ## Repository Information (already gathered)
+    [paste the repository yaml block from Step 1]
 ```
 
 The Explore agent should return the complete architecture document content as its output.
 
-### Step 3: Write the Architecture Document
+### Step 4: Write the Architecture Document
 
 When the Explore subagent completes with the document content:
 
@@ -63,7 +92,7 @@ When the Explore subagent completes with the document content:
 
 3. Verify the file was created
 
-### Step 4: Present Results and Prompt User
+### Step 5: Present Results and Prompt User
 
 After the subagent completes, present the results to the user:
 
@@ -102,40 +131,9 @@ Explore this codebase to identify its architectural layers and structure.
 
 ## Your Task
 
-Systematically explore the codebase and create an architecture document at `docs/unwind/architecture.md`.
+Systematically explore the codebase and return the architecture document content. The main agent will write the file.
 
-## Phase 0: Repository Information
-
-**CRITICAL:** Extract repository information FIRST for source linking.
-
-Run these commands to get git info:
-```bash
-git remote get-url origin 2>/dev/null
-git branch --show-current 2>/dev/null
-```
-
-Parse the remote URL:
-- SSH format: `git@github.com:owner/repo.git` → `https://github.com/owner/repo`
-- HTTPS format: `https://github.com/owner/repo.git` → `https://github.com/owner/repo`
-- GitLab/Bitbucket: Similar patterns
-
-If git info is available, set:
-```yaml
-repository:
-  type: github|gitlab|bitbucket|unknown
-  url: https://github.com/owner/repo
-  branch: main
-  link_format: https://github.com/owner/repo/blob/main/{path}#L{start}-L{end}
-```
-
-If git info is NOT available (not a git repo, no remote):
-```yaml
-repository:
-  type: local
-  url: null
-  branch: null
-  link_format: "{path}:{start}-{end}"
-```
+**Repository information has already been gathered and will be provided to you.** Use the provided `repository.link_format` for all source links.
 
 ## Phase 1: Project Identification
 
