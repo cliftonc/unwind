@@ -212,6 +212,25 @@ graph LR
 - [List anything unclear]
 ```
 
+## Mandatory Tagging
+
+**Every event, producer, consumer, and handler must have a [MUST], [SHOULD], or [DON'T] tag in its heading.**
+
+Default categorizations for messaging layer:
+- **[MUST]**: Event schemas, core producers, core consumers, webhook handlers
+- **[SHOULD]**: Scheduled jobs, retry logic, dead letter handling
+- **[DON'T]**: Message broker configuration, serialization config
+
+Example:
+```markdown
+### OrderCreatedEvent [MUST]
+### OrderEventPublisher [MUST]
+### DailyResetJob [SHOULD]
+### KafkaConfig [DON'T]
+```
+
+See `analysis-principles.md` section 9 for full tagging rules.
+
 ## Refresh Mode
 
 If `docs/unwind/layers/messaging/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.

@@ -165,29 +165,63 @@ For data structures, include actual definitions:
 **Events:** Include event schema (JSON Schema, Avro, Protobuf)
 **DTOs:** Include actual class/type definitions
 
-## 9. Rebuild Categorization
+## 9. Rebuild Categorization [MANDATORY]
 
-The target audience for Unwind documentation is an AI agent that will rebuild the system. Tag each documented item for rebuild priority:
+**EVERY documented item MUST have a tag in its heading.** No exceptions.
+
+The target audience is an AI agent that will rebuild the system. Tags tell it what to prioritize.
+
+### Tag Format
+
+Put the tag at the end of every markdown heading for tables, functions, entities, endpoints, etc:
+
+```markdown
+### users table [MUST]
+### GetUserByEmail [MUST]
+### cache_config [SHOULD]
+### drizzle_query_pattern [DON'T]
+```
+
+### Tag Meanings
 
 | Tag | Meaning | Examples |
 |-----|---------|----------|
-| **MUST** | Essential for comparable functionality - without this, the rebuild fails | Core calculation formulas, entity relationships, business validation rules, external API contracts |
-| **SHOULD** | Valuable patterns that inform quality but could be reimplemented differently | API endpoint structure, caching strategies, error handling patterns |
-| **DON'T** | Implementation details tied to current tech stack - omit from rebuild | ORM-specific syntax, CSS framework classes, build tool configuration |
+| **[MUST]** | Essential - rebuild fails without this | Tables, core functions, business logic, API contracts |
+| **[SHOULD]** | Valuable pattern but could differ | Caching, logging, helper utilities, test helpers |
+| **[DON'T]** | Tech-specific - omit from rebuild | ORM syntax, CSS classes, build config |
 
-**Example tagging:**
+### Default Tag
+
+**When uncertain, use [MUST].** It's safer to include too much than miss critical functionality.
+
+### Layer-Specific Defaults
+
+| Layer | Default [MUST] | Default [SHOULD] | Default [DON'T] |
+|-------|----------------|------------------|-----------------|
+| Database | All tables, core indexes | Audit tables, performance indexes | ORM-specific syntax |
+| Domain | Entities, validation rules, enums | DTOs, mappers | Framework annotations |
+| Service | Business logic, calculations, formulas | Logging, caching | Framework patterns |
+| API | Endpoints, auth, contracts | Error handling patterns | Middleware config |
+| Frontend | User flows, state | Component patterns | CSS classes, build |
+
+### Example
+
 ```markdown
-### Rate Calculation [MUST]
-```typescript
-// snapshot-operations.ts:186
-cost = periods[rate.interval] * rate.rate * fteBasis * allocation * holidayPercentage
-```
+# Database Schema
 
-### Drizzle ORM Query Pattern [DON'T]
-```typescript
-// Tech-specific - omit from rebuild docs
-db.select().from(users).where(eq(users.org, orgId))
-```
+### users [MUST]
+Primary user table...
+
+### audit_logs [SHOULD]
+Optional audit trail...
+
+# Repositories
+
+### FindUserByEmail [MUST]
+Core lookup function...
+
+### GetDBPath [SHOULD]
+Test utility function...
 ```
 
 ## 10. Exact Counts Required

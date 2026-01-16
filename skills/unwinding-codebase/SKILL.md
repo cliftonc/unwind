@@ -146,7 +146,7 @@ For each layer with gaps.md:
 ### Step 7: Handoff
 
 When completion phase done (all gaps.md files deleted):
-> Layer analysis complete. Run `unwind:synthesizing-findings` to aggregate into CODEBASE.md.
+> Layer analysis complete. Run `unwind:synthesizing-findings` to generate the strategic rebuild plan.
 
 ## Execution Example
 

@@ -305,6 +305,25 @@ The goal is to enable rebuild in ANY framework. Prioritize documenting functiona
 - GET /api/snapshots (for comparison)
 ```
 
+## Mandatory Tagging
+
+**Every page, flow, and state requirement must have a [MUST], [SHOULD], or [DON'T] tag in its heading.**
+
+Default categorizations for frontend layer:
+- **[MUST]**: User flows, page purposes, permission requirements, API dependencies
+- **[SHOULD]**: State management patterns, loading states, error boundaries
+- **[DON'T]**: CSS class names, component library usage, build configuration
+
+Example:
+```markdown
+### LoginPage [MUST]
+### UserRegistrationFlow [MUST]
+### AuthStore [SHOULD]
+### TailwindClasses [DON'T]
+```
+
+See `analysis-principles.md` section 9 for full tagging rules.
+
 ## Refresh Mode
 
 If `docs/unwind/layers/frontend/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.

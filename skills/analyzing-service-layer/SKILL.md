@@ -263,6 +263,25 @@ Document any fallback chains or resolution hierarchies:
 
 Note where transactions begin/end and any batch processing patterns.
 
+## Mandatory Tagging
+
+**Every service, function, and formula must have a [MUST], [SHOULD], or [DON'T] tag in its heading.**
+
+Default categorizations for service layer:
+- **[MUST]**: Business logic, calculations, formulas, constants, resolution chains
+- **[SHOULD]**: Logging, caching patterns, transaction boundaries
+- **[DON'T]**: Framework-specific patterns, dependency injection syntax
+
+Example:
+```markdown
+### BudgetBuilder [MUST]
+### CostCalculation formula [MUST]
+### RateResolutionChain [MUST]
+### CacheService [SHOULD]
+```
+
+See `analysis-principles.md` section 9 for full tagging rules.
+
 ## Refresh Mode
 
 If `docs/unwind/layers/service-layer/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.

@@ -237,6 +237,25 @@ Document any self-referential constraints:
 - End date must be after start date: `endDate > startDate`
 ```
 
+## Mandatory Tagging
+
+**Every entity, enum, and validation rule must have a [MUST], [SHOULD], or [DON'T] tag in its heading.**
+
+Default categorizations for domain model:
+- **[MUST]**: Entities, validation rules, enums, business constraints
+- **[SHOULD]**: DTOs, mappers, utility types
+- **[DON'T]**: Framework-specific decorators, ORM annotations
+
+Example:
+```markdown
+### User entity [MUST]
+### UserStatus enum [MUST]
+### EmailValidator [MUST]
+### UserDTO [SHOULD]
+```
+
+See `analysis-principles.md` section 9 for full tagging rules.
+
 ## Refresh Mode
 
 If `docs/unwind/layers/domain-model/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.

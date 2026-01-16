@@ -44,7 +44,8 @@ Build list of actual items in code
 Compare the two lists:
 - Items in source but NOT in documentation → **MISSING**
 - Items documented incorrectly → **INACCURATE**
-- Items missing [MUST/SHOULD/DON'T] tags → **UNCATEGORIZED**
+
+Note: All items should already have [MUST/SHOULD/DON'T] tags (see analysis-principles.md section 9). If items lack tags, that indicates the analysis skill was not followed correctly - not a verification gap.
 
 ### Step 4: Write gaps.md
 
@@ -72,11 +73,6 @@ Write ONLY the gaps to `docs/unwind/layers/{layer}/gaps.md`
 - **Location:** {source_file}:{lines}
 - **Issue:** {what's wrong}
 - **Actual:** {what code shows}
-
-## Uncategorized Items
-
-- {item_name} in {section}.md - needs [MUST|SHOULD|DON'T] tag
-- ...
 ```
 
 ## Example gaps.md
@@ -110,11 +106,6 @@ Write ONLY the gaps to `docs/unwind/layers/{layer}/gaps.md`
 - **Location:** src/schema.ts:45
 - **Issue:** Wrong type documented
 - **Actual:** enum('active', 'suspended', 'deleted') not varchar
-
-## Uncategorized Items
-
-- users table in schema.md - needs [MUST] tag
-- findByEmail in repositories.md - needs [SHOULD] tag
 ```
 
 ## Agent Dispatch
@@ -140,7 +131,6 @@ Task(subagent_type="general-purpose")
     ONLY list:
     - Missing items (with source location, category, target section)
     - Inaccuracies (with what's wrong and actual value)
-    - Uncategorized items (missing MUST/SHOULD/DON'T tags)
 ```
 
 ## Layer-Specific Gap Detection

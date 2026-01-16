@@ -218,6 +218,25 @@ Document ALL indexes with:
 - Type (btree, gin, partial)
 - Rationale (if apparent from naming or usage)
 
+## Mandatory Tagging
+
+**Every table, function, and schema must have a [MUST], [SHOULD], or [DON'T] tag in its heading.**
+
+Default categorizations for database layer:
+- **[MUST]**: All tables, core repository functions, JSONB schemas
+- **[SHOULD]**: Audit/logging tables, test utilities, performance indexes
+- **[DON'T]**: ORM-specific query patterns, migration-specific syntax
+
+Example:
+```markdown
+### users [MUST]
+### audit_logs [SHOULD]
+### FindUserByEmail [MUST]
+### GetTestDBPath [SHOULD]
+```
+
+See `analysis-principles.md` section 9 for full tagging rules.
+
 ## Refresh Mode
 
 If `docs/unwind/layers/database/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.

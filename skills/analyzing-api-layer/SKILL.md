@@ -348,6 +348,25 @@ For each endpoint, document required permissions:
 | /api/budgets/:id | DELETE | Required | budget:delete (admin) |
 ```
 
+## Mandatory Tagging
+
+**Every endpoint, route, and contract must have a [MUST], [SHOULD], or [DON'T] tag in its heading.**
+
+Default categorizations for API layer:
+- **[MUST]**: All endpoints, authentication flows, external API contracts, permissions
+- **[SHOULD]**: Error handling patterns, rate limiting, logging middleware
+- **[DON'T]**: Framework-specific middleware config, CORS setup details
+
+Example:
+```markdown
+### POST /api/users [MUST]
+### AuthMiddleware [MUST]
+### OpenAPI spec [MUST]
+### ErrorHandler [SHOULD]
+```
+
+See `analysis-principles.md` section 9 for full tagging rules.
+
 ## Refresh Mode
 
 If `docs/unwind/layers/api/` exists, compare current state and add `## Changes Since Last Review` section to `index.md`.

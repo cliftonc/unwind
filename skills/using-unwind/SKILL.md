@@ -48,7 +48,7 @@ completing-layer-documentation → gap completion (parallel per layer)
         ├── Adds missing documentation
         └── Deletes gaps.md when done
         │
-synthesizing-findings       → CODEBASE.md + REBUILD-PLAN.md
+synthesizing-findings       → REBUILD-PLAN.md (strategic rebuild approach)
 ```
 
 ## Skills
@@ -61,7 +61,7 @@ synthesizing-findings       → CODEBASE.md + REBUILD-PLAN.md
 | `unwinding-codebase` | Orchestrates layer analysis |
 | `verifying-layer-documentation` | `gaps.md` per layer (work list) |
 | `completing-layer-documentation` | Fills gaps, deletes gaps.md |
-| `synthesizing-findings` | `CODEBASE.md` + `REBUILD-PLAN.md` |
+| `synthesizing-findings` | `REBUILD-PLAN.md` |
 
 ### Layer Specialists
 
@@ -107,7 +107,6 @@ docs/unwind/
 │   │   ├── endpoints.md
 │   │   └── verification.md
 │   └── [other layers...]
-├── CODEBASE.md
 └── REBUILD-PLAN.md
 ```
 

@@ -27,9 +27,15 @@ Restart Claude Code after installation.
 ```
 
 **Output:**
-- `docs/unwind/REBUILD-PLAN.md` - Phased migration strategy with validation checkpoints
-- `docs/unwind/CODEBASE.md` - Reference documentation
+- `docs/unwind/REBUILD-PLAN.md` - Strategic rebuild approach
 - `docs/unwind/layers/*/` - Detailed layer analysis (folder per layer)
+
+### Example Output
+
+See a complete example from the [RealWorld Go API](https://github.com/cliftonc/golang-gin-realworld-example-app):
+- [REBUILD-PLAN.md](https://github.com/cliftonc/golang-gin-realworld-example-app/blob/main/docs/unwind/REBUILD-PLAN.md)
+- [architecture.md](https://github.com/cliftonc/golang-gin-realworld-example-app/blob/main/docs/unwind/architecture.md)
+- [Layer documentation](https://github.com/cliftonc/golang-gin-realworld-example-app/tree/main/docs/unwind/layers)
 
 ---
 
@@ -92,15 +98,14 @@ Restart Claude Code after installation.
 │  PHASE 5: SYNTHESIS                                                          │
 │  ┌──────────────────────────────────────────────────────────┐              │
 │  │              synthesizing-findings                        │              │
-│  │   (Generates REBUILD-PLAN.md + CODEBASE.md)              │              │
+│  │   (Generates strategic REBUILD-PLAN.md)                  │              │
 │  └──────────────────────────────────────────────────────────┘              │
 │                                │                                            │
-│               ┌────────────────┴────────────────┐                          │
-│               ▼                                 ▼                          │
-│     ┌──────────────────┐              ┌──────────────────┐                 │
-│     │  REBUILD-PLAN.md │              │   CODEBASE.md    │                 │
-│     │  (Action plan)   │              │  (Reference doc) │                 │
-│     └──────────────────┘              └──────────────────┘                 │
+│                                ▼                                            │
+│                    ┌──────────────────────┐                                │
+│                    │   REBUILD-PLAN.md    │                                │
+│                    │  (Strategic rebuild) │                                │
+│                    └──────────────────────┘                                │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -156,7 +161,7 @@ All analysis follows these principles (see `skills/analysis-principles.md`):
 | `unwinding-codebase` | Orchestrates all phases | Dispatches specialists |
 | `verifying-layer-documentation` | Detects gaps in docs | `gaps.md` per layer |
 | `completing-layer-documentation` | Fixes all gaps | Updated layer files |
-| `synthesizing-findings` | Generates rebuild plan | `REBUILD-PLAN.md`, `CODEBASE.md` |
+| `synthesizing-findings` | Generates strategic rebuild plan | `REBUILD-PLAN.md` |
 
 ### Layer Specialists
 
@@ -208,8 +213,7 @@ docs/unwind/
 │   │   ├── pages.md                   # User flows, not React code
 │   │   └── state.md
 │   └── [test layers...]
-├── REBUILD-PLAN.md                    # Phased migration strategy
-└── CODEBASE.md                        # Reference documentation
+└── REBUILD-PLAN.md                    # Strategic rebuild approach
 ```
 
 ## Rebuild Plan
