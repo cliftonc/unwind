@@ -1,6 +1,6 @@
 ---
 name: synthesizing-findings
-description: Use after layer analysis is complete to aggregate findings into unified codebase documentation and generate a phased rebuild plan
+description: Use after layer analysis is complete to validate architecture documentation and generate a strategic rebuild plan focused on re-use decisions
 allowed-tools:
   - Read
   - Grep
@@ -10,18 +10,21 @@ allowed-tools:
   - Edit(docs/unwind/**)
 ---
 
-# Synthesizing Findings → Rebuild Plan
+# Synthesizing Findings → Rebuild Strategy
 
 ## Overview
 
-Transform all layer analysis documents into:
-1. **CODEBASE.md** - Unified documentation for understanding
-2. **REBUILD-PLAN.md** - Phased migration/rebuild strategy with validation checkpoints
+Transform layer analysis into a **strategic rebuild plan** that answers HOW to rebuild, not WHAT to rebuild.
+
+**Key Principle:** Layer docs are the source of truth for what exists. The rebuild plan focuses on strategic decisions about re-use, phasing, and approach.
 
 **Requires:** `docs/unwind/layers/*/index.md` from layer specialists + verification reports
 **Produces:**
-- `docs/unwind/CODEBASE.md` - Reference documentation
-- `docs/unwind/REBUILD-PLAN.md` - Actionable rebuild strategy
+- `docs/unwind/REBUILD-PLAN.md` - Strategic rebuild approach with re-use decisions
+- Updated `docs/unwind/architecture.md` if corrections needed after detailed analysis
+
+**Does NOT produce:**
+- ~~CODEBASE.md~~ - Removed; architecture.md serves this purpose
 
 ## Prerequisites
 
@@ -32,446 +35,239 @@ Before using this skill:
 
 ## The Process
 
-### Step 1: Inventory
+### Step 1: Inventory Layer Documentation
 
 Read all docs from `docs/unwind/layers/`:
-- For each layer folder, read `index.md` and follow links to section files
-- Verify no `gaps.md` files remain (completion phase should have deleted them)
+- For each layer folder, read `index.md` and key section files
+- Note item counts, readiness scores, and gaps identified
+- Do NOT extract or copy content - just understand what exists
 
-Extract:
-- MUST/SHOULD/DON'T categorizations
-- External contracts (OpenAPI, AsyncAPI, etc.)
-- Item counts per layer
+### Step 2: Validate architecture.md
 
-### Step 2: Identify External Contracts [CRITICAL]
+Compare initial architecture discovery against detailed layer findings:
+- Are layer boundaries still accurate?
+- Were any layers discovered/removed during analysis?
+- Are cross-cutting concerns correctly identified?
+- Update architecture.md if corrections are needed
 
-These define what MUST be preserved exactly:
+### Step 3: Assess Strategic Re-use Options
 
-```markdown
-## External Contracts [MUST PRESERVE EXACTLY]
+For each key area, determine what can be retained vs rebuilt:
 
-| Contract Type | Location | Consumers |
-|---------------|----------|-----------|
-| OpenAPI 3.0 | docs/openapi.yaml | Mobile app, Partner integrations |
-| AsyncAPI | docs/asyncapi.yaml | Event subscribers |
-| TSRest | src/contracts/api.ts | Frontend client |
-```
+**Database:**
+- Can the rebuilt system connect to the live database?
+- Is running alongside the original system feasible?
+- Would a sync mechanism (change events, dual writes) be needed?
 
-**Validation:** Any rebuild MUST pass contract compatibility tests against these specs.
+**Tests:**
+- Are tests sufficiently decoupled from implementation details?
+- Can existing tests validate the rebuilt system?
+- What adapters would be needed for tech stack changes?
 
-### Step 3: Build Dependency Graph for Rebuild
+**Frontend:**
+- Is the UI acceptable for initial phases?
+- Can we replace only the backend initially?
+- What API contract must be preserved exactly?
 
-Determine the order components must be rebuilt:
+**Integrations:**
+- Which external integrations are critical?
+- What webhook contracts must be maintained?
+- What scheduled jobs must continue?
 
-```mermaid
-graph TD
-    subgraph "Phase 1: Foundation"
-        DB[Database Schema]
-        DOMAIN[Domain Entities]
-    end
+### Step 4: Determine Phasing Strategy
 
-    subgraph "Phase 2: Core Logic"
-        SVC[Services]
-        CALC[Calculations]
-    end
+Based on re-use assessment, define phases:
+- What can be retained as-is?
+- What needs adapters/wrappers?
+- What must be rebuilt from scratch?
+- What's the dependency order?
 
-    subgraph "Phase 3: Interfaces"
-        API[API Layer]
-        EVENTS[Event Publishers]
-    end
+### Step 5: Define Validation Approach
 
-    subgraph "Phase 4: Frontend"
-        UI[Frontend App]
-    end
-
-    DB --> DOMAIN
-    DOMAIN --> SVC
-    SVC --> CALC
-    CALC --> API
-    API --> EVENTS
-    API --> UI
-```
-
-### Step 4: Generate Rebuild Phases
-
-For each phase, define:
-- What to build
-- Prerequisites
-- Validation criteria
-- Rollback strategy
-
-### Step 5: Define Validation Checkpoints
-
-Each phase must have concrete validation:
-
-| Phase | Validation | Pass Criteria |
-|-------|------------|---------------|
-| Database | Schema diff | 0 differences from original DDL |
-| Services | Unit tests | All MUST calculations match original |
-| API | Contract tests | OpenAPI spec passes 100% |
-| Integration | E2E tests | Core user flows work |
+Determine how to verify the rebuilt system matches the original:
+- What test vectors exist?
+- How can parallel running work?
+- What metrics prove equivalence?
 
 ### Step 6: Generate REBUILD-PLAN.md
 
-Write actionable rebuild plan to `docs/unwind/REBUILD-PLAN.md`.
+Write strategic rebuild plan to `docs/unwind/REBUILD-PLAN.md`.
+
+**CRITICAL:** Never copy content from layer docs. Only reference them.
 
 ---
 
 ## Output Format: REBUILD-PLAN.md
 
 ```markdown
-# [Project Name] - Rebuild Plan
+# [Project Name] - Rebuild Strategy
 
 > Generated by Unwind on [timestamp]
-> Target: Rebuild in [target language/framework]
 
 ## Executive Summary
 
-**Original Stack:** [e.g., TypeScript/React/Hono/PostgreSQL]
-**Rebuild Readiness:** [X/10 average across layers]
-**Estimated Phases:** [N phases]
-**Critical Contracts:** [List external APIs that must be preserved]
+**Original Stack:** [brief tech summary]
+**Overall Readiness:** [X/10]
+**Recommended Approach:** [e.g., "Rebuild backend, retain frontend and database"]
 
-## External Contract Compatibility [CRITICAL]
+---
 
-These specifications define external interfaces that MUST be maintained exactly:
+## Strategic Decisions
 
-### API Contract
-**File:** `docs/openapi.yaml`
-**Validation:** Run OpenAPI diff tool against rebuilt API
-```bash
-# Validation command
-openapi-diff original.yaml rebuilt.yaml --fail-on-incompatible
-```
+### Database Strategy
 
-### Event Contract
-**File:** `docs/asyncapi.yaml`
-**Validation:** Schema compatibility check
-```bash
-asyncapi diff original.yaml rebuilt.yaml
+**Question:** Can we connect to the live database during rebuild?
+
+**Assessment:**
+- [Findings from database layer analysis]
+- [Multi-tenancy implications]
+- [Schema compatibility considerations]
+
+**Recommendation:** [Specific recommendation with rationale]
+
+**Options if live DB not feasible:**
+- [ ] Snapshot and restore to dev environment
+- [ ] Build sync mechanism (change events)
+- [ ] Dual-write during transition
+
+### Test Re-usability
+
+**Question:** Can we run existing tests against the rebuilt system?
+
+**Assessment:**
+- [Test coupling analysis from test layer docs]
+- [Framework dependencies]
+- [Tech-specific vs behavior-focused tests]
+
+**Recommendation:** [Specific recommendation]
+
+**Adapters needed:**
+- [ ] [List any tech-specific adaptations]
+
+### Frontend Retention
+
+**Question:** Can we retain the frontend and replace only the backend?
+
+**Assessment:**
+- [Frontend coupling analysis]
+- [API contract rigidity]
+- [State management implications]
+
+**Recommendation:** [Specific recommendation]
+
+**API Contract:**
+- Preserve exactly: [list critical endpoints/contracts]
+- Can evolve: [list flexible areas]
+
+### Integration Preservation
+
+**External Services:**
+| Integration | Contract Type | Must Preserve |
+|-------------|---------------|---------------|
+| [Name] | [webhook/API/etc] | [Yes/No + reason] |
+
+**Scheduled Jobs:**
+| Job | Frequency | Rebuild Approach |
+|-----|-----------|------------------|
+| [Name] | [cron] | [retain/adapt/rebuild] |
+
+---
+
+## Phasing Strategy
+
+### Phase 1: [Foundation]
+
+**Retain:**
+- [Components that can be kept as-is]
+
+**Adapt:**
+- [Components needing wrappers/bridges]
+
+**Rebuild:**
+- [Components requiring full rebuild]
+
+**Reference:** [layers/xxx/index.md]
+
+**Validation:**
+- [ ] [Specific check]
+- [ ] [Specific check]
+
+### Phase 2: [Core Logic]
+
+[Same structure]
+
+### Phase 3: [Interfaces]
+
+[Same structure]
+
+### Phase 4: [Frontend] (if rebuilding)
+
+[Same structure]
+
+### Phase 5: [Integration]
+
+**Parallel Running Strategy:**
+- [How to run old and new side-by-side]
+- [Traffic splitting approach]
+- [Rollback triggers]
+
+---
+
+## Validation Strategy
+
+### Equivalence Testing
+
+**Approach:** [How to prove rebuilt system matches original]
+
+**Test Vectors:**
+- [ ] Existing integration tests pass
+- [ ] Calculation outputs match (specific test cases)
+- [ ] API responses identical for sample requests
+
+### Go-Live Checklist
+
+- [ ] All phase validations complete
+- [ ] Parallel running successful for [duration]
+- [ ] Rollback tested
+- [ ] Monitoring in place
+
+---
+
+## Layer Documentation References
+
+> **Note:** These documents contain the detailed specifications. This plan focuses on strategic decisions only.
+
+| Layer | Reference | Readiness |
+|-------|-----------|-----------|
+| Database | [layers/database/index.md](layers/database/index.md) | X/10 |
+| Domain Model | [layers/domain-model/index.md](layers/domain-model/index.md) | X/10 |
+| Service Layer | [layers/service-layer/index.md](layers/service-layer/index.md) | X/10 |
+| API | [layers/api/index.md](layers/api/index.md) | X/10 |
+| Messaging | [layers/messaging/index.md](layers/messaging/index.md) | X/10 |
+| Frontend | [layers/frontend/index.md](layers/frontend/index.md) | X/10 |
+| Unit Tests | [layers/unit-tests/index.md](layers/unit-tests/index.md) | X/10 |
+| Integration Tests | [layers/integration-tests/index.md](layers/integration-tests/index.md) | X/10 |
 ```
 
 ---
 
-## Phase 1: Database & Domain Foundation
-
-**Duration Estimate:** [Do not include - user decides timing]
-**Prerequisites:** None
-**Rebuild Readiness:** [X/10]
-
-### What to Build
-
-#### 1.1 Database Schema [MUST]
-
-Recreate all [N] tables with exact structure:
-
-| Table | Columns | Constraints | Priority |
-|-------|---------|-------------|----------|
-| users | 12 | PK, 3 FK, 2 UNIQUE | MUST |
-| orders | 8 | PK, 2 FK | MUST |
-| ... | ... | ... | ... |
-
-**Source:** `docs/unwind/layers/database.md`
-
-**Key Constraints to Preserve:**
-- Multi-tenancy: All tables have `organisation` FK
-- Soft delete: `active` boolean on entity tables
-- Audit: `created_at`, `updated_at` timestamps
-
-#### 1.2 Domain Entities [MUST]
-
-| Entity | Fields | Validation Rules | State Machine |
-|--------|--------|------------------|---------------|
-| User | 12 | Email format, password min 8 | active → suspended → deleted |
-| Budget | 8 | Status enum | draft → published |
-| ... | ... | ... | ... |
-
-**Source:** `docs/unwind/layers/domain-model.md`
-
-### Validation Checkpoint 1
-
-```markdown
-## Phase 1 Validation Checklist
-
-[ ] Schema created with all [N] tables
-[ ] All foreign keys match original
-[ ] All indexes created
-[ ] All constraints enforced
-[ ] JSONB column structures match
-[ ] Sample data can be inserted
-[ ] Basic CRUD operations work
-
-**Validation Script:**
-```sql
--- Compare table counts
-SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';
--- Should equal: [N]
-
--- Compare column counts per table
-SELECT table_name, COUNT(*) as column_count
-FROM information_schema.columns
-WHERE table_schema = 'public'
-GROUP BY table_name;
-```
-```
-
----
-
-## Phase 2: Business Logic & Calculations
-
-**Prerequisites:** Phase 1 complete
-**Rebuild Readiness:** [X/10]
-
-### What to Build
-
-#### 2.1 Core Calculations [MUST]
-
-These formulas MUST produce identical results:
-
-##### Cost Calculation
-```
-cost = periods[rate.interval] × rate × fteBasis × allocation × holidayPercentage
-```
-
-**Edge Cases:**
-| Interval | Formula | Note |
-|----------|---------|------|
-| hours | workingDays × 8 × rate × fte × allocation | hoursPerDay = 8 |
-| days | workingDays × rate × fte × allocation | Standard |
-| months | rate × fte × allocation | NO period multiplier |
-
-**Source:** `docs/unwind/layers/service-layer.md`
-
-##### Constants to Preserve
-| Constant | Value | Usage |
-|----------|-------|-------|
-| hoursPerDay | 8 | Hour calculations |
-| daysInYear | 365 | Year proration |
-
-#### 2.2 Service Functions [MUST]
-
-| Service | Key Methods | Dependencies |
-|---------|-------------|--------------|
-| BudgetBuilder | build(), aggregate() | RateService, PeriodService |
-| SnapshotService | create(), compare() | CalculationService |
-| ... | ... | ... |
-
-### Validation Checkpoint 2
-
-```markdown
-## Phase 2 Validation Checklist
-
-[ ] All calculation formulas implemented
-[ ] Edge cases handled (monthly rates, etc.)
-[ ] Constants match original values
-[ ] Unit tests pass for:
-    [ ] Cost calculation with all interval types
-    [ ] Rate resolution fallback chain
-    [ ] CAPEX/OPEX splitting
-    [ ] Holiday percentage by calendar type
-
-**Calculation Verification:**
-```typescript
-// Test vectors from original system
-const testCases = [
-  { input: {...}, expected: 1234.56 },
-  { input: {...}, expected: 789.00 },
-];
-
-testCases.forEach(tc => {
-  const result = calculateCost(tc.input);
-  assert(result === tc.expected, `Expected ${tc.expected}, got ${result}`);
-});
-```
-```
-
----
-
-## Phase 3: API Layer
-
-**Prerequisites:** Phase 2 complete
-**Rebuild Readiness:** [X/10]
-
-### What to Build
-
-#### 3.1 Endpoints [MUST - EXTERNAL CONTRACT]
-
-Implement all [N] endpoints matching OpenAPI spec exactly:
-
-| Method | Path | Auth | Handler |
-|--------|------|------|---------|
-| POST | /api/v1/users | None | createUser |
-| GET | /api/v1/users/:id | User | getUser |
-| ... | ... | ... | ... |
-
-**Full endpoint inventory:** `docs/unwind/layers/api.md`
-
-#### 3.2 Authentication [MUST]
-
-Preserve authentication flow exactly:
-1. OAuth providers: [GitHub, Google, GitLab]
-2. Session management: [Cookie-based, JWT]
-3. Permission model: [CASL rules]
-
-#### 3.3 Error Responses [MUST]
-
-| Error Code | HTTP Status | Response Shape |
-|------------|-------------|----------------|
-| USER_NOT_FOUND | 404 | `{ error: string, code: string }` |
-| VALIDATION_ERROR | 400 | `{ errors: FieldError[] }` |
-
-### Validation Checkpoint 3
-
-```markdown
-## Phase 3 Validation Checklist
-
-[ ] All [N] endpoints implemented
-[ ] OpenAPI contract validation passes
-[ ] Authentication flows work:
-    [ ] OAuth login
-    [ ] Session creation
-    [ ] Token refresh
-[ ] Permission checks enforced
-[ ] Error responses match contract
-
-**Contract Validation:**
-```bash
-# Run OpenAPI compatibility check
-npx @apidevtools/swagger-cli validate rebuilt-api.yaml
-npx openapi-diff original.yaml rebuilt.yaml --fail-on-incompatible
-
-# Run API integration tests
-npm run test:api
-```
-```
-
----
-
-## Phase 4: Frontend (if applicable)
-
-**Prerequisites:** Phase 3 complete
-**Rebuild Readiness:** [X/10]
-
-### What to Build
-
-Focus on FUNCTIONALITY, not implementation:
-
-#### 4.1 User Flows [MUST]
-
-| Flow | Steps | Validation |
-|------|-------|------------|
-| User Registration | Form → API → Redirect | User appears in DB |
-| Budget Creation | Select calendar → Add positions → Publish | Budget calculations match |
-| ... | ... | ... |
-
-#### 4.2 State Requirements [MUST]
-
-| State | Persistence | Purpose |
-|-------|-------------|---------|
-| Auth token | LocalStorage | Session |
-| Selected org | LocalStorage | Multi-tenancy |
-| Theme | LocalStorage | Preference |
-
-### Validation Checkpoint 4
-
-```markdown
-## Phase 4 Validation Checklist
-
-[ ] All user flows functional
-[ ] State persists correctly across refresh
-[ ] Permission-based UI hiding works
-[ ] API integration works for all endpoints
-
-**E2E Validation:**
-```bash
-# Run E2E test suite
-npx playwright test
-
-# Core flows to verify manually:
-1. User can log in via OAuth
-2. User can create and publish budget
-3. User can view snapshot comparison
-4. Admin can manage users
-```
-```
-
----
-
-## Phase 5: Integration & Migration
-
-**Prerequisites:** Phases 1-4 complete
-
-### 5.1 Data Migration
-
-```markdown
-## Migration Strategy
-
-1. **Schema Migration**
-   - Create new schema
-   - Run DDL from Phase 1
-   - Verify structure matches
-
-2. **Data Migration**
-   - Export from original: `pg_dump --data-only`
-   - Transform if needed (rare - schema should match)
-   - Import to new system
-
-3. **Verification**
-   - Row counts match
-   - Checksums match for critical tables
-   - Sample queries return same results
-```
-
-### 5.2 Parallel Running
-
-```markdown
-## Parallel Validation Strategy
-
-1. Run original and rebuilt systems simultaneously
-2. Mirror traffic to both (read-only on rebuilt)
-3. Compare responses for divergence
-4. Investigate and fix any differences
-5. Gradually shift traffic when confidence is high
-```
-
-### Final Validation
-
-```markdown
-## Go-Live Checklist
-
-[ ] All phase validation checkpoints pass
-[ ] Data migration verified
-[ ] Performance acceptable
-[ ] External contracts validated
-[ ] Rollback plan tested
-[ ] Monitoring in place
-```
-
----
-
-## Appendix: Layer Documentation
-
-- [Database Layer](layers/database/index.md)
-- [Domain Model](layers/domain-model/index.md)
-- [Service Layer](layers/service-layer/index.md)
-- [API Layer](layers/api/index.md)
-- [Frontend Layer](layers/frontend/index.md)
-```
-
----
-
-## Also Generate: CODEBASE.md
-
-In addition to REBUILD-PLAN.md, generate a reference CODEBASE.md that contains:
-
-1. **Executive Summary** - What the system does
-2. **Architecture Overview** - Layers and dependencies
-3. **Cross-Cutting Concerns** - Auth, logging, error handling
-4. **Data Flows** - Key user journeys traced through system
-5. **Glossary** - Domain terminology
-6. **Quick Reference** - Key files and commands
-
-This serves as the "understanding" document, while REBUILD-PLAN.md is the "action" document.
+## Anti-Patterns
+
+**NEVER do these:**
+
+1. **Copy tables from layer docs** - The reader can follow the reference link
+2. **Duplicate code examples** - Layer docs are the source of truth
+3. **List every endpoint/table/entity** - That's what layer docs are for
+4. **Include implementation details** - Focus on strategic decisions
+5. **Repeat WHAT to build** - Only discuss HOW to approach it
+
+**ALWAYS do these:**
+
+1. **Reference layer docs with links** - Point to the detail, don't copy it
+2. **Answer strategic questions** - Database re-use? Test re-use? Frontend retention?
+3. **Focus on phasing decisions** - What order? What can be retained?
+4. **Define validation approach** - How to prove equivalence?
+5. **Make recommendations** - Give specific advice, not just options
 
 ---
 
@@ -481,14 +277,14 @@ If rebuild plan exists:
 1. Read existing plan
 2. Compare to new analysis
 3. Add `## Changes Since Last Plan` section
-4. Update readiness scores
-5. Flag any new external contracts discovered
+4. Update recommendations if layer findings changed
+5. Validate architecture.md still accurate
 
 ## After Completion
 
 Announce:
-> Rebuild plan complete. See:
-> - `docs/unwind/REBUILD-PLAN.md` - Phased rebuild strategy with validation checkpoints
-> - `docs/unwind/CODEBASE.md` - Reference documentation
+> Rebuild strategy complete. See:
+> - `docs/unwind/REBUILD-PLAN.md` - Strategic rebuild approach with re-use decisions
+> - `docs/unwind/architecture.md` - Validated architecture overview
 >
-> Start with Phase 1 (Database & Domain) and validate each phase before proceeding.
+> The layer documentation contains the detailed specifications. The rebuild plan focuses on HOW to approach the rebuild, not WHAT to build.
