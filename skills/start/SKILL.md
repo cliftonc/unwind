@@ -40,20 +40,28 @@ Glob: docs/unwind/architecture.md
 
 ### Step 2: Dispatch Discovery Subagent
 
-Dispatch an Explore subagent with the discovery prompt:
+Dispatch an **Explore** subagent for fast codebase analysis. Note: Explore cannot write files, so you will write the output in Step 3.
 
 ```
 Task(subagent_type="Explore")
   description: "Discover codebase architecture"
-  prompt: [See Subagent Prompt below]
+  prompt: [See Subagent Prompt below - but OMIT Phase 5 (writing)]
 ```
 
-### Step 3: Review Output
+The Explore agent should return the complete architecture document content as its output.
 
-When the subagent completes:
-1. Verify `docs/unwind/architecture.md` was created
-2. Review the layer detection summary
-3. Note any layers marked as "not_detected" or "low confidence"
+### Step 3: Write the Architecture Document
+
+When the Explore subagent completes with the document content:
+
+1. Create the output directory:
+   ```bash
+   mkdir -p docs/unwind
+   ```
+
+2. Write the content to `docs/unwind/architecture.md` using the Write tool
+
+3. Verify the file was created
 
 ### Step 4: Present Results and Prompt User
 
@@ -175,16 +183,11 @@ Identify aspects spanning multiple layers:
 - Caching
 - Validation
 
-## Phase 5: Write Architecture Document
+## Phase 5: Return Architecture Document
 
-**FIRST** create the output directory:
-```bash
-mkdir -p docs/unwind
-```
+**DO NOT attempt to write the file** - you don't have write permissions. Instead, return the complete architecture document content in your response. The main agent will write it to `docs/unwind/architecture.md`.
 
-Then create `docs/unwind/architecture.md`.
-
-Use this format:
+Return the document in this exact format:
 
 ```markdown
 # Architecture Discovery: [Project Name]
